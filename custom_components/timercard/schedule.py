@@ -59,6 +59,22 @@ def resolve_moment(
     return dt_util.as_utc(local)
 
 
+def specs_for_weekday(
+    timer: dict[str, Any], weekday: int
+) -> tuple[dict[str, Any], dict[str, Any] | None] | None:
+    """Return the (on, off) settings used on ``weekday``, or None if it is off.
+
+    A timer has main times for its ``days`` and optionally ``overrides``: other
+    times for other days (for example later in the weekend).
+    """
+    for override in timer.get("overrides") or []:
+        if weekday in (override.get("days") or []):
+            return override["on"], override.get("off")
+    if weekday in (timer.get("days") or ALL_DAYS):
+        return timer["on"], timer.get("off")
+    return None
+
+
 def period_for_day(
     hass: HomeAssistant, timer: dict[str, Any], day: date
 ) -> tuple[datetime, datetime | None] | None:
@@ -66,15 +82,16 @@ def period_for_day(
 
     Returns None when the timer does not run on that day.
     """
-    days = timer.get("days") or ALL_DAYS
-    if day.weekday() not in days:
+    specs = specs_for_weekday(timer, day.weekday())
+    if specs is None:
         return None
+    on_spec, off = specs
 
-    on_moment = resolve_moment(hass, timer["on"], day)
+    on_moment = resolve_moment(hass, on_spec, day)
     if on_moment is None:
         return None
 
-    off = timer.get("off") or {"mode": OFF_MODE_NONE}
+    off = off or {"mode": OFF_MODE_NONE}
     mode = off.get("mode", OFF_MODE_NONE)
     if mode == OFF_MODE_NONE:
         return on_moment, None
@@ -120,10 +137,27 @@ def describe_next(
     hass: HomeAssistant, timer: dict[str, Any], now: datetime
 ) -> dict[str, Any]:
     """Return a dict with next on/off moments (ISO strings) and active state."""
-    next_on = next_moment(hass, timer, EVENT_ON, now)
-    next_off = next_moment(hass, timer, EVENT_OFF, now)
+    def _iso(moment: datetime | None) -> str | None:
+        return moment.isoformat() if moment else None
+
+    # Next moments per group of days (main times first, then each override),
+    # so the card can show e.g. the sunset time for the weekend group.
+    groups = []
+    for group in [
+        {"on": timer["on"], "off": timer.get("off"), "days": timer.get("days")},
+        *(timer.get("overrides") or []),
+    ]:
+        sub = {"on": group["on"], "off": group.get("off"), "days": group.get("days")}
+        groups.append(
+            {
+                "next_on": _iso(next_moment(hass, sub, EVENT_ON, now)),
+                "next_off": _iso(next_moment(hass, sub, EVENT_OFF, now)),
+            }
+        )
+
     return {
-        "next_on": next_on.isoformat() if next_on else None,
-        "next_off": next_off.isoformat() if next_off else None,
+        "next_on": _iso(next_moment(hass, timer, EVENT_ON, now)),
+        "next_off": _iso(next_moment(hass, timer, EVENT_OFF, now)),
         "active": is_active(hass, timer, now),
+        "groups": groups,
     }

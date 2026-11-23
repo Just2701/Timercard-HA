@@ -193,3 +193,64 @@ async def test_timers_survive_restart(
     await hass.async_block_till_done()
     assert len(on_calls) == 1
     assert len(off_calls) == 1
+
+
+async def test_per_day_times_over_websocket(
+    hass: HomeAssistant, hass_ws_client, freezer: FrozenDateTimeFactory
+) -> None:
+    """Different weekend times run at their own moments; overlap is refused."""
+    client = await hass_ws_client(hass)
+    freezer.move_to(_local(2026, 11, 27, 12, 0))  # Friday
+    await _setup(hass)
+    on_calls = async_mock_service(hass, "light", "turn_on")
+
+    await client.send_json_auto_id(
+        {
+            "type": "timercard/create",
+            "entities": ["light.hall"],
+            "days": [0, 1, 2, 3, 4, 5],
+            "on": {"time": "07:00"},
+            "overrides": [{"days": [5, 6], "on": {"time": "09:00"}}],
+        }
+    )
+    msg = await client.receive_json()
+    assert not msg["success"]
+    assert msg["error"]["code"] == "invalid_format"
+
+    await client.send_json_auto_id(
+        {
+            "type": "timercard/create",
+            "name": "Hall",
+            "entities": ["light.hall"],
+            "days": [0, 1, 2, 3, 4],
+            "on": {"time": "07:00"},
+            "off": {"mode": "duration", "duration": 30},
+            "overrides": [
+                {"days": [5, 6], "on": {"time": "09:00"}, "off": {"mode": "duration", "duration": 60}}
+            ],
+        }
+    )
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    timer = msg["result"]
+    assert timer["next_on"] == _local(2026, 11, 28, 9, 0).isoformat()
+    assert timer["groups"][0]["next_on"] == _local(2026, 11, 30, 7, 0).isoformat()
+    assert timer["groups"][1]["next_off"] == _local(2026, 11, 28, 10, 0).isoformat()
+
+    # Updating the main days so they overlap the weekend is refused too
+    await client.send_json_auto_id(
+        {"type": "timercard/update", "timer_id": timer["id"], "days": [0, 6]}
+    )
+    msg = await client.receive_json()
+    assert not msg["success"]
+
+    # Saturday 07:00: nothing (weekend starts later)
+    freezer.move_to(_local(2026, 11, 28, 7, 0, 1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert len(on_calls) == 0
+    freezer.move_to(_local(2026, 11, 28, 9, 0, 1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert len(on_calls) == 1
+

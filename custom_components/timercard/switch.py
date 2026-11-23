@@ -68,6 +68,7 @@ class TimerSwitch(SwitchEntity):
             "days": info.get("days", []),
             "on": info.get("on"),
             "off": info.get("off"),
+            "overrides": info.get("overrides", []),
             "next_on": info.get("next_on"),
             "next_off": info.get("next_off"),
             "active": info.get("active"),

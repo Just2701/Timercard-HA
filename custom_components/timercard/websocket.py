@@ -74,6 +74,27 @@ DAYS_SCHEMA = vol.All(
     lambda days: sorted(set(days)),
 )
 
+OVERRIDE_SCHEMA = vol.Schema(
+    {
+        vol.Required("days"): DAYS_SCHEMA,
+        vol.Required("on"): ON_SCHEMA,
+        vol.Optional("off", default={"mode": OFF_MODE_NONE}): OFF_SCHEMA,
+    }
+)
+OVERRIDES_SCHEMA = vol.All([OVERRIDE_SCHEMA], vol.Length(max=6))
+
+
+def _check_days(timer: dict[str, Any]) -> str | None:
+    """Return an error when a weekday is used by more than one set of times."""
+    seen: set[int] = set(timer.get("days") or [])
+    for override in timer.get("overrides") or []:
+        days = set(override["days"])
+        if days & seen:
+            return "Each day can only have one set of times"
+        seen |= days
+    return None
+
+
 TIMER_FIELDS = {
     vol.Optional("name"): vol.All(str, vol.Length(max=100)),
     vol.Optional("enabled"): bool,
@@ -82,6 +103,7 @@ TIMER_FIELDS = {
     vol.Optional("on"): ON_SCHEMA,
     vol.Optional("off"): OFF_SCHEMA,
     vol.Optional("options"): OPTIONS_SCHEMA,
+    vol.Optional("overrides"): OVERRIDES_SCHEMA,
 }
 
 
@@ -154,6 +176,7 @@ def ws_subscribe(
         vol.Optional("days", default=[0, 1, 2, 3, 4, 5, 6]): DAYS_SCHEMA,
         vol.Optional("off", default={"mode": OFF_MODE_NONE}): OFF_SCHEMA,
         vol.Optional("options", default={}): OPTIONS_SCHEMA,
+        vol.Optional("overrides", default=[]): OVERRIDES_SCHEMA,
     }
 )
 @websocket_api.async_response
@@ -164,6 +187,9 @@ async def ws_create(
     if _not_loaded(connection, msg):
         return
     data = {key: value for key, value in msg.items() if key not in ("id", "type")}
+    if error := _check_days(data):
+        connection.send_error(msg["id"], "invalid_format", error)
+        return
     timer = await _manager(hass).async_create(data)
     connection.send_result(msg["id"], timer)
 
@@ -191,6 +217,9 @@ async def ws_update(
         for key, value in msg.items()
         if key not in ("id", "type", "timer_id")
     }
+    if error := _check_days({**manager.timers[msg["timer_id"]], **changes}):
+        connection.send_error(msg["id"], "invalid_format", error)
+        return
     timer = await manager.async_update(msg["timer_id"], changes)
     connection.send_result(msg["id"], timer)
 

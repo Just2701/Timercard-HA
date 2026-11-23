@@ -14,6 +14,7 @@ device on and what turns it off again.
 - ⌛ Turn off at a set time, at sunrise/sunset, **after a while** (e.g. "after 15 min"), or not at all
 - 🌙 Off time earlier than on time (e.g. 22:00 → 06:30) means **the next day**
 - 📅 Pick days with one tap: *Every day*, *Weekdays*, *Weekend*, or single days
+- 🗓️ Optional **different times on some days** (e.g. later in the weekend). It stays hidden until you switch it on
 - 💡 Optional extras: brightness for lights, temperature for thermostats, position for covers
 - 📝 A plain-language **"In short"** sentence that shows exactly what the timer will do
 - 📊 A 24-hour bar per timer showing when the device is on, plus "Next: turn on today at 19:00"
@@ -40,6 +41,20 @@ Home Assistant config, restart, then follow steps 3 and 4 above.
 
 You don't need to add a dashboard resource: the integration loads the card for you.
 
+## Different times on some days
+
+At the bottom of **On which days?** there is a switch **Different times on
+some days**. It is off by default, so a normal timer stays simple.
+
+Switch it on and an **Other times** block appears, already set to Saturday and
+Sunday, with its own *turn on* and *turn off* moments (copied from the main
+times, so you only change what is different). Use **Add other days** for more
+blocks, e.g. a late Friday. Every day can belong to one set of times only:
+tapping a day in one block moves it there from the other block. Switching the
+option off again gives all days the main times.
+
+<img src="docs/docs-per-day.png" width="380" alt="Different times on some days">
+
 ## Card options
 
 ```yaml
@@ -63,7 +78,8 @@ mowers (start/dock), scripts (run/stop), and scenes and buttons (on only).
 Each timer has a switch entity, for example `switch.timercard_garden_lights`:
 
 - turning the switch **off** pauses the timer, **on** resumes it;
-- its attributes contain `next_on`, `next_off`, `active`, `entities` and `days`.
+- its attributes contain `next_on`, `next_off`, `active`, `entities`, `days`
+  and `overrides` (the "other times", if any).
 
 Every time a timer runs, Home Assistant fires the event `timercard_executed`
 with `timer_id`, `name`, `event` (`on`/`off`) and `entities`.

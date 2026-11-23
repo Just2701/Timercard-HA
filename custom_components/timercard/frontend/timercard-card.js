@@ -100,6 +100,14 @@ const TC_I18N = {
     try_now: "Try it now:",
     need_device: "Choose at least one device.",
     need_day: "Choose at least one day.",
+    need_day_group: "Choose at least one day for each set of other times.",
+    per_day: "Different times on some days",
+    per_day_hint: "For example later in the weekend",
+    main_days: "The times above are used on:",
+    other_times: "Other times",
+    other_days: "On these days:",
+    add_other: "Add other days",
+    remove: "Remove",
     summary_title: "In short",
     when_time: "at {time}",
     when_sun: "at {sun}",
@@ -173,6 +181,14 @@ const TC_I18N = {
     try_now: "Nu testen:",
     need_device: "Kies minstens één apparaat.",
     need_day: "Kies minstens één dag.",
+    need_day_group: "Kies minstens één dag voor elke set andere tijden.",
+    per_day: "Andere tijden op sommige dagen",
+    per_day_hint: "Bijvoorbeeld later in het weekend",
+    main_days: "De tijden hierboven gelden op:",
+    other_times: "Andere tijden",
+    other_days: "Op deze dagen:",
+    add_other: "Andere dagen toevoegen",
+    remove: "Verwijderen",
     summary_title: "Kort gezegd",
     when_time: "om {time}",
     when_sun: "bij {sun}",
@@ -510,19 +526,63 @@ class TimercardCard extends HTMLElement {
     return this._t("on_days", { days: set.map((d) => names[d]).join(", ") });
   }
 
+  _groupText(group, verbs) {
+    let text = `${this._verb(verbs.on).toLowerCase()} ${this._whenText(group.on, false)}`;
+    if (verbs.hasOff && group.off && group.off.mode !== "none") {
+      text += `, ${this._verb(verbs.off).toLowerCase()} ${this._whenText(group.off, true, group.on)}`;
+    }
+    return text;
+  }
+
   _summary(timer) {
     const verbs = this._verbsFor(timer.entities);
     const devices = (timer.entities || []).map((e) => this._entityName(e));
     const list = devices.length ? devices.join(", ") : "…";
-    let text = `<b>${tcEsc(list)}</b>: ${tcEsc(this._verb(verbs.on).toLowerCase())} ${tcEsc(this._whenText(timer.on, false))}`;
-    if (verbs.hasOff && timer.off && timer.off.mode !== "none") {
-      text += `, ${tcEsc(this._verb(verbs.off).toLowerCase())} ${tcEsc(this._whenText(timer.off, true, timer.on))}`;
+    const groups = this._groups(timer);
+    if (groups.length === 1) {
+      return `<b>${tcEsc(list)}</b>: ${tcEsc(this._groupText(groups[0], verbs))}. ${tcEsc(this._daysText(timer.days))}`;
     }
-    text += `. ${tcEsc(this._daysText(timer.days))}`;
-    return text;
+    return `<b>${tcEsc(list)}</b>:<ul>${groups.map((g) => `
+      <li><b>${tcEsc(g.days.length ? this._daysLabel(g.days) : "…")}</b>: ${tcEsc(this._groupText(g, verbs))}</li>`).join("")}</ul>`;
   }
 
-  /* ------------------------------------------------------------ render */
+  /** Short label for weekdays: "Every day", "Weekdays", "Mon–Wed, Sat". */
+  _daysLabel(days) {
+    const set = [...new Set(days || [])].sort((a, b) => a - b);
+    const key = set.join(",");
+    if (key === "0,1,2,3,4,5,6") return this._t("every_day");
+    if (key === "0,1,2,3,4") return this._t("weekdays");
+    if (key === "5,6") return this._t("weekend");
+    const names = this._dayNames("short").map((n) => n.charAt(0).toUpperCase() + n.slice(1));
+    const parts = [];
+    let i = 0;
+    while (i < set.length) {
+      let j = i;
+      while (j + 1 < set.length && set[j + 1] === set[j] + 1) j += 1;
+      if (j - i >= 2) parts.push(`${names[set[i]]}–${names[set[j]]}`);
+      else for (let k = i; k <= j; k += 1) parts.push(names[set[k]]);
+      i = j + 1;
+    }
+    return parts.join(", ");
+  }
+
+  /** The main times plus any "other times", each with its own next moments. */
+  _groups(timer) {
+    const raw = [{ days: timer.days || [], on: timer.on, off: timer.off }, ...(timer.overrides || [])];
+    return raw.map((g, i) => ({
+      days: g.days || [],
+      on: g.on,
+      off: g.off || { mode: "none" },
+      next_on: timer.groups?.[i]?.next_on ?? (i === 0 ? timer.next_on : null),
+      next_off: timer.groups?.[i]?.next_off ?? (i === 0 ? timer.next_off : null),
+    }));
+  }
+
+  _todayWeekday() {
+    const date = this._parts(new Date().toISOString()).date;
+    return (new Date(`${date}T12:00:00Z`).getUTCDay() + 6) % 7;
+  }
+
   _render() {
     if (!this.shadowRoot) return;
     if (this._view === "edit" && this._draft) {
@@ -560,18 +620,31 @@ class TimercardCard extends HTMLElement {
   _renderTimer(timer) {
     const verbs = this._verbsFor(timer.entities);
     const enabled = timer.enabled !== false;
-    const hasOff = verbs.hasOff && timer.off && timer.off.mode !== "none";
     const active = enabled && timer.active;
     const names = this._dayNames("narrow");
-    const days = new Set(timer.days || []);
+    const groups = this._groups(timer);
+    const multi = groups.length > 1;
+    const days = new Set(groups.flatMap((g) => g.days));
 
     const devices = (timer.entities || []).map((e) => `
       <span class="device ${this._isEntityOn(e) ? "is-on" : ""}" title="${tcEsc(e)}">
         <ha-icon icon="${tcEsc(this._entityIcon(e))}"></ha-icon>${tcEsc(this._entityName(e))}
       </span>`).join("");
 
-    const onBox = this._eventBox(timer, "on", verbs);
-    const offBox = hasOff ? this._eventBox(timer, "off", verbs) : "";
+    const events = groups.map((g) => {
+      const hasOff = verbs.hasOff && g.off.mode !== "none";
+      return `
+        ${multi ? `<div class="group-label"><ha-icon icon="mdi:calendar-range"></ha-icon>${tcEsc(this._daysLabel(g.days))}</div>` : ""}
+        <div class="events">
+          ${this._eventBox(g, "on", verbs)}
+          ${hasOff ? `<ha-icon class="arrow" icon="mdi:arrow-right-thick"></ha-icon>${this._eventBox(g, "off", verbs)}` : ""}
+        </div>`;
+    }).join("");
+
+    // The bar shows the times that apply today.
+    const today = this._todayWeekday();
+    const barGroup = groups.find((g) => g.days.includes(today)) || groups[0];
+    const bar = this._renderBar(barGroup, verbs.hasOff && barGroup.off.mode !== "none");
 
     let status;
     if (!enabled) status = `<ha-icon icon="mdi:pause-circle-outline"></ha-icon>${tcEsc(this._t("paused"))}`;
@@ -600,11 +673,8 @@ class TimercardCard extends HTMLElement {
           </label>
         </div>
         <div class="devices">${devices}</div>
-        <div class="events">
-          ${onBox}
-          ${hasOff ? `<ha-icon class="arrow" icon="mdi:arrow-right-thick"></ha-icon>${offBox}` : ""}
-        </div>
-        ${this._renderBar(timer, hasOff)}
+        <div class="groups">${events}</div>
+        ${bar}
         <div class="timer-bottom">
           <div class="daypills">${names.map((n, i) => `<span class="${days.has(i) ? "on" : ""}">${tcEsc(n)}</span>`).join("")}</div>
           <ha-icon class="edit-icon" icon="mdi:pencil"></ha-icon>
@@ -686,6 +756,15 @@ class TimercardCard extends HTMLElement {
       on: { type: "time", time: "19:00", offset: 0 },
       off: { mode: "time", type: "time", time: "23:00", offset: 0, duration: 60 },
       options: { brightness: null, temperature: null, position: null },
+      overrides: [],
+    };
+  }
+
+  _fillSpecs(group) {
+    return {
+      days: [...(group.days || [])],
+      on: { type: "time", time: "19:00", offset: 0, ...(group.on || {}) },
+      off: { mode: "time", type: "time", time: "23:00", offset: 0, duration: 60, ...(group.off || {}) },
     };
   }
 
@@ -697,10 +776,9 @@ class TimercardCard extends HTMLElement {
         name: d.name || "",
         enabled: d.enabled !== false,
         entities: d.entities || [],
-        days: d.days || [0, 1, 2, 3, 4, 5, 6],
-        on: { type: "time", time: "19:00", offset: 0, ...(d.on || {}) },
-        off: { mode: "time", type: "time", time: "23:00", offset: 0, duration: 60, ...(d.off || {}) },
+        ...this._fillSpecs({ days: d.days || [0, 1, 2, 3, 4, 5, 6], on: d.on, off: d.off }),
         options: { brightness: null, temperature: null, position: null, ...(d.options || {}) },
+        overrides: (d.overrides || []).map((o) => this._fillSpecs(o)),
       };
     } else {
       this._draft = this._newDraft();
@@ -709,6 +787,7 @@ class TimercardCard extends HTMLElement {
     this._search = "";
     this._confirmDelete = false;
     this._showErrors = false;
+    this._customDuration = new Set();
     this._render();
     this.shadowRoot.querySelector(".editor")?.scrollIntoView?.({ block: "nearest" });
   }
@@ -724,6 +803,7 @@ class TimercardCard extends HTMLElement {
     const errors = [];
     if (!d.entities.length) errors.push(this._t("need_device"));
     if (!d.days.length) errors.push(this._t("need_day"));
+    if (d.overrides.some((o) => !o.days.length)) errors.push(this._t("need_day_group"));
     return errors;
   }
 
@@ -841,24 +921,57 @@ class TimercardCard extends HTMLElement {
       </button>`).join("");
   }
 
+  _offEditor(prefix, group, verbs) {
+    if (!verbs.hasOff) return `<div class="hint">${tcEsc(this._t("only_on"))}</div>`;
+    const mode = group.off.mode;
+    return `${this._segmented(`${prefix}.mode`, [
+        { value: "time", label: this._t("off_at_time"), icon: "mdi:clock-outline" },
+        { value: "duration", label: this._t("off_after"), icon: "mdi:timer-sand" },
+        { value: "none", label: this._t("off_none", { verb: this._verb(verbs.off).toLowerCase() }), icon: "mdi:cancel" },
+      ], mode, "wrap")}
+      ${mode === "time" ? `<div class="sub-block">${this._momentEditor(prefix, group.off)}<div class="next-day-note" data-val="next-day" data-group="${prefix}">${this._nextDayNote(group)}</div></div>` : ""}
+      ${mode === "duration" ? this._durationEditor(prefix, group.off) : ""}`;
+  }
+
+  /** Day buttons for the main times (gi = -1) or "other times" number gi. */
+  _dayToggles(gi) {
+    const d = this._draft;
+    const names = this._dayNames("short");
+    const lists = [d.days, ...d.overrides.map((o) => o.days)];
+    const own = new Set(lists[gi + 1]);
+    const elsewhere = new Set(lists.filter((_, i) => i !== gi + 1).flat());
+    return `<div class="day-toggles">${names.map((n, i) => {
+      const cls = own.has(i) ? "selected" : elsewhere.has(i) ? "elsewhere" : "";
+      return `<button type="button" class="day ${cls}" aria-pressed="${own.has(i)}" data-action="day" data-group="${gi}" data-day="${i}">${tcEsc(n)}</button>`;
+    }).join("")}</div>`;
+  }
+
+  _overrideBlock(o, i, verbs) {
+    return `
+      <div class="override">
+        <div class="override-head">
+          <ha-icon icon="mdi:calendar-clock"></ha-icon>
+          <span>${tcEsc(this._t("other_times"))}${o.days.length ? ` · ${tcEsc(this._daysLabel(o.days))}` : ""}</span>
+          <span class="spacer"></span>
+          <button type="button" class="icon-btn" data-action="remove-override" data-index="${i}" aria-label="${tcEsc(this._t("remove"))}" title="${tcEsc(this._t("remove"))}"><ha-icon icon="mdi:delete-outline"></ha-icon></button>
+        </div>
+        <div class="label">${tcEsc(this._t("other_days"))}</div>
+        ${this._dayToggles(i)}
+        <div class="sub-title on"><ha-icon icon="mdi:power"></ha-icon>${tcEsc(this._verb(verbs.on))}</div>
+        ${this._momentEditor(`overrides.${i}.on`, o.on)}
+        ${verbs.hasOff ? `
+          <div class="sub-title off"><ha-icon icon="mdi:power-off"></ha-icon>${tcEsc(this._verb(verbs.off))}</div>
+          ${this._offEditor(`overrides.${i}.off`, o, verbs)}` : ""}
+      </div>`;
+  }
+
   _renderEditor() {
     const d = this._draft;
     const verbs = this._verbsFor(d.entities);
-    const offMode = verbs.hasOff ? d.off.mode : "none";
-    const names = this._dayNames("short");
-    const days = new Set(d.days);
     const errors = this._validation();
-    const dayKey = [...days].sort().join(",");
-
-    const offBody = !verbs.hasOff
-      ? `<div class="hint">${tcEsc(this._t("only_on"))}</div>`
-      : `${this._segmented("off.mode", [
-          { value: "time", label: this._t("off_at_time"), icon: "mdi:clock-outline" },
-          { value: "duration", label: this._t("off_after"), icon: "mdi:timer-sand" },
-          { value: "none", label: this._t("off_none", { verb: this._verb(verbs.off).toLowerCase() }), icon: "mdi:cancel" },
-        ], offMode, "wrap")}
-        ${offMode === "time" ? `<div class="sub-block">${this._momentEditor("off", d.off)}<div class="next-day-note" data-val="next-day">${this._nextDayNote()}</div></div>` : ""}
-        ${offMode === "duration" ? this._durationEditor() : ""}`;
+    const dayKey = [...d.days].sort().join(",");
+    const perDay = d.overrides.length > 0;
+    const badge = perDay ? `<span class="badge">${tcEsc(d.days.length ? this._daysLabel(d.days) : "…")}</span>` : "";
 
     this.shadowRoot.innerHTML = `
       <style>${TC_STYLES}</style>
@@ -875,26 +988,37 @@ class TimercardCard extends HTMLElement {
           </section>
 
           <section class="step step-on">
-            <div class="step-title"><span class="num on"><ha-icon icon="mdi:power"></ha-icon></span>${tcEsc(this._verb(verbs.on))}</div>
+            <div class="step-title"><span class="num on"><ha-icon icon="mdi:power"></ha-icon></span>${tcEsc(this._verb(verbs.on))}${badge}</div>
             ${this._momentEditor("on", d.on)}
             ${this._optionsEditor()}
           </section>
 
           <section class="step step-off">
-            <div class="step-title"><span class="num off"><ha-icon icon="mdi:power-off"></ha-icon></span>${tcEsc(this._verb(verbs.off))}</div>
-            ${offBody}
+            <div class="step-title"><span class="num off"><ha-icon icon="mdi:power-off"></ha-icon></span>${tcEsc(this._verb(verbs.off))}${verbs.hasOff ? badge : ""}</div>
+            ${this._offEditor("off", d, verbs)}
           </section>
 
           <section class="step">
             <div class="step-title"><span class="num"><ha-icon icon="mdi:calendar-week"></ha-icon></span>${tcEsc(this._t("step_days"))}</div>
+            ${perDay ? `<div class="label">${tcEsc(this._t("main_days"))}</div>` : `
             <div class="presets">
               <button type="button" class="preset ${dayKey === "0,1,2,3,4,5,6" ? "selected" : ""}" data-action="days" data-days="0,1,2,3,4,5,6">${tcEsc(this._t("every_day"))}</button>
               <button type="button" class="preset ${dayKey === "0,1,2,3,4" ? "selected" : ""}" data-action="days" data-days="0,1,2,3,4">${tcEsc(this._t("weekdays"))}</button>
               <button type="button" class="preset ${dayKey === "5,6" ? "selected" : ""}" data-action="days" data-days="5,6">${tcEsc(this._t("weekend"))}</button>
-            </div>
-            <div class="day-toggles">${names.map((n, i) => `
-              <button type="button" class="day ${days.has(i) ? "selected" : ""}" aria-pressed="${days.has(i)}" data-action="day" data-day="${i}">${tcEsc(n)}</button>`).join("")}
-            </div>
+            </div>`}
+            ${this._dayToggles(-1)}
+
+            <label class="per-day-row">
+              <span class="per-day-text">
+                <span>${tcEsc(this._t("per_day"))}</span>
+                <span class="muted small">${tcEsc(this._t("per_day_hint"))}</span>
+              </span>
+              <span class="toggle"><input type="checkbox" data-action="per-day" ${perDay ? "checked" : ""}><span class="slider"></span></span>
+            </label>
+
+            ${perDay ? `
+              ${d.overrides.map((o, i) => this._overrideBlock(o, i, verbs)).join("")}
+              <button type="button" class="text-btn add-override" data-action="add-override"><ha-icon icon="mdi:plus"></ha-icon>${tcEsc(this._t("add_other"))}</button>` : ""}
           </section>
 
           <section class="step">
@@ -926,73 +1050,116 @@ class TimercardCard extends HTMLElement {
       </ha-card>`;
   }
 
-  _durationEditor() {
-    const dur = parseInt(this._draft.off.duration, 10) || 60;
-    const isPreset = TC_DURATION_PRESETS.includes(dur) && !this._customDuration;
+  _durationEditor(prefix, off) {
+    const dur = parseInt(off.duration, 10) || 60;
+    const isPreset = TC_DURATION_PRESETS.includes(dur) && !this._customDuration?.has(prefix);
     return `<div class="sub-block">
       <div class="label">${tcEsc(this._t("for_how_long"))}</div>
       <div class="presets">
-        ${TC_DURATION_PRESETS.map((m) => `<button type="button" class="preset ${isPreset && m === dur ? "selected" : ""}" data-action="duration" data-min="${m}">${tcEsc(this._fmtDuration(m))}</button>`).join("")}
-        <button type="button" class="preset ${isPreset ? "" : "selected"}" data-action="duration-custom">${tcEsc(this._t("custom"))}</button>
+        ${TC_DURATION_PRESETS.map((m) => `<button type="button" class="preset ${isPreset && m === dur ? "selected" : ""}" data-action="duration" data-prefix="${prefix}" data-min="${m}">${tcEsc(this._fmtDuration(m))}</button>`).join("")}
+        <button type="button" class="preset ${isPreset ? "" : "selected"}" data-action="duration-custom" data-prefix="${prefix}">${tcEsc(this._t("custom"))}</button>
       </div>
       ${isPreset ? "" : `<div class="field-row">
-        <input class="num" type="number" min="0" max="24" data-field="off.dur_h" value="${Math.floor(dur / 60)}"><span class="unit">${tcEsc(this._t("hour"))}</span>
-        <input class="num" type="number" min="0" max="59" data-field="off.dur_m" value="${dur % 60}"><span class="unit">${tcEsc(this._t("min"))}</span>
+        <input class="num" type="number" min="0" max="24" data-field="${prefix}.dur_h" value="${Math.floor(dur / 60)}"><span class="unit">${tcEsc(this._t("hour"))}</span>
+        <input class="num" type="number" min="0" max="59" data-field="${prefix}.dur_m" value="${dur % 60}"><span class="unit">${tcEsc(this._t("min"))}</span>
       </div>`}
     </div>`;
   }
 
-  _nextDayNote() {
-    const d = this._draft;
-    if ((d.on.type || "time") !== "time" || (d.off.type || "time") !== "time") return "";
-    if (tcMinutes(d.off.time) > tcMinutes(d.on.time)) return "";
+  _nextDayNote(group) {
+    if ((group.on.type || "time") !== "time" || (group.off.type || "time") !== "time") return "";
+    if (tcMinutes(group.off.time) > tcMinutes(group.on.time)) return "";
     return `<ha-icon icon="mdi:weather-night"></ha-icon>${tcEsc(this._t("next_day"))}`;
   }
 
   _draftAsTimer() {
     const d = this._draft;
     const verbs = this._verbsFor(d.entities);
-    return { ...d, off: verbs.hasOff ? d.off : { mode: "none" } };
+    const off = (spec) => (verbs.hasOff ? spec : { mode: "none" });
+    return { ...d, off: off(d.off), overrides: d.overrides.map((o) => ({ ...o, off: off(o.off) })) };
   }
 
-  /** Update the parts of the editor that depend on typed values. */
+  _resolve(path) {
+    if (!path) return this._draft;
+    return path.split(".").reduce((obj, key) => (obj == null ? undefined : obj[key]), this._draft);
+  }
+
   _refreshLive() {
     const root = this.shadowRoot;
     const summary = root.querySelector('[data-val="summary"]');
     if (summary) summary.innerHTML = this._summary(this._draftAsTimer());
-    const note = root.querySelector('[data-val="next-day"]');
-    if (note) note.innerHTML = this._nextDayNote();
+    root.querySelectorAll('[data-val="next-day"]').forEach((note) => {
+      const group = this._resolve(note.dataset.group.replace(/\.?off$/, ""));
+      if (group) note.innerHTML = this._nextDayNote(group);
+    });
     ["brightness", "position"].forEach((k) => {
       const el = root.querySelector(`[data-val="${k}"]`);
       if (el) el.textContent = `${this._draft.options[k]}%`;
     });
   }
 
-  /* ------------------------------------------------------------ events */
   _setField(field, value) {
     const d = this._draft;
-    const [group, key] = field.split(".");
-    if (field === "name") d.name = value;
-    else if (field === "search") this._search = value;
-    else if (key === "type") {
-      d[group].type = value;
-      if (value !== "time") d[group].offset = d[group].offset || 0;
-    } else if (key === "time") d[group].time = value || d[group].time;
+    if (field === "name") { d.name = value; return; }
+    if (field === "search") { this._search = value; return; }
+    const parts = field.split(".");
+    const key = parts.pop();
+    if (parts[0] === "options") {
+      d.options[key] = value === "" ? null : Number(value);
+      return;
+    }
+    const prefix = parts.join(".");
+    const spec = this._resolve(prefix);
+    if (!spec) return;
+    if (key === "type") {
+      spec.type = value;
+      spec.offset = value === "time" ? 0 : spec.offset || 0;
+    } else if (key === "time") spec.time = value || spec.time;
     else if (key === "dir") {
-      const abs = Math.abs(parseInt(d[group].offset, 10) || 0) || 30;
-      d[group].offset = value === "exact" ? 0 : value === "before" ? -abs : abs;
+      const abs = Math.abs(parseInt(spec.offset, 10) || 0) || 30;
+      spec.offset = value === "exact" ? 0 : value === "before" ? -abs : abs;
     } else if (key === "offset_abs") {
       const abs = Math.min(720, Math.max(1, parseInt(value, 10) || 1));
-      d[group].offset = (parseInt(d[group].offset, 10) || 0) < 0 ? -abs : abs;
-    } else if (group === "off" && key === "mode") d.off.mode = value;
+      spec.offset = (parseInt(spec.offset, 10) || 0) < 0 ? -abs : abs;
+    } else if (key === "mode") spec.mode = value;
     else if (key === "dur_h" || key === "dur_m") {
       const root = this.shadowRoot;
-      const h = parseInt(root.querySelector('[data-field="off.dur_h"]')?.value, 10) || 0;
-      const m = parseInt(root.querySelector('[data-field="off.dur_m"]')?.value, 10) || 0;
-      d.off.duration = Math.min(1440, Math.max(1, h * 60 + m));
-    } else if (group === "options") {
-      d.options[key] = value === "" ? null : Number(value);
+      const h = parseInt(root.querySelector(`[data-field="${prefix}.dur_h"]`)?.value, 10) || 0;
+      const m = parseInt(root.querySelector(`[data-field="${prefix}.dur_m"]`)?.value, 10) || 0;
+      spec.duration = Math.min(1440, Math.max(1, h * 60 + m));
     }
+  }
+
+  /** Switch "different times on some days" on or off. */
+  _setPerDay(on) {
+    const d = this._draft;
+    if (on) {
+      // Most people want other times in the weekend: start with that.
+      const weekend = [5, 6];
+      d.days = d.days.filter((x) => !weekend.includes(x));
+      if (!d.days.length) d.days = [0, 1, 2, 3, 4];
+      d.overrides = [{ days: weekend, on: tcClone(d.on), off: tcClone(d.off) }];
+    } else {
+      // Back to one set of times: those days use the main times again.
+      d.days = [...new Set([...d.days, ...d.overrides.flatMap((o) => o.days)])].sort((a, b) => a - b);
+      d.overrides = [];
+    }
+    this._renderEditor();
+  }
+
+  /** Tap a day in a group: select it there (taking it from another group) or unselect it. */
+  _toggleDay(gi, day) {
+    const d = this._draft;
+    const lists = [d.days, ...d.overrides.map((o) => o.days)];
+    const idx = gi + 1;
+    if (lists[idx].includes(day)) {
+      lists[idx] = lists[idx].filter((x) => x !== day);
+    } else {
+      for (let i = 0; i < lists.length; i += 1) if (i !== idx) lists[i] = lists[i].filter((x) => x !== day);
+      lists[idx] = [...lists[idx], day].sort((a, b) => a - b);
+    }
+    d.days = lists[0];
+    d.overrides.forEach((o, i) => { o.days = lists[i + 1]; });
   }
 
   _onInput(ev) {
@@ -1012,6 +1179,10 @@ class TimercardCard extends HTMLElement {
     if (target?.dataset?.action === "toggle") {
       ev.stopPropagation();
       this._toggleTimer(target.dataset.id, target.checked);
+      return;
+    }
+    if (target?.dataset?.action === "per-day") {
+      this._setPerDay(target.checked);
       return;
     }
     if (target?.dataset?.action === "opt-toggle") {
@@ -1090,23 +1261,34 @@ class TimercardCard extends HTMLElement {
         this._renderEditor();
         break;
       }
-      case "day": {
-        const day = parseInt(el.dataset.day, 10);
-        d.days = d.days.includes(day) ? d.days.filter((x) => x !== day) : [...d.days, day].sort();
+      case "day":
+        this._toggleDay(parseInt(el.dataset.group ?? "-1", 10), parseInt(el.dataset.day, 10));
         this._renderEditor();
         break;
-      }
       case "days":
         d.days = el.dataset.days.split(",").map(Number);
         this._renderEditor();
         break;
-      case "duration":
-        this._customDuration = false;
-        d.off.duration = parseInt(el.dataset.min, 10);
+      case "add-override":
+        d.overrides.push({ days: [], on: tcClone(d.on), off: tcClone(d.off) });
         this._renderEditor();
         break;
+      case "remove-override": {
+        const [removed] = d.overrides.splice(parseInt(el.dataset.index, 10), 1);
+        // Those days go back to the main times.
+        d.days = [...new Set([...d.days, ...(removed?.days || [])])].sort((a, b) => a - b);
+        this._renderEditor();
+        break;
+      }
+      case "duration": {
+        this._customDuration.delete(el.dataset.prefix);
+        const spec = this._resolve(el.dataset.prefix);
+        if (spec) spec.duration = parseInt(el.dataset.min, 10);
+        this._renderEditor();
+        break;
+      }
       case "duration-custom":
-        this._customDuration = true;
+        this._customDuration.add(el.dataset.prefix);
         this._renderEditor();
         break;
       case "save":
@@ -1135,7 +1317,6 @@ class TimercardCard extends HTMLElement {
     }
   }
 
-  /* ------------------------------------------------------------ actions */
   _toast(message) {
     this.dispatchEvent(new CustomEvent("hass-notification", {
       detail: { message }, bubbles: true, composed: true,
@@ -1150,6 +1331,9 @@ class TimercardCard extends HTMLElement {
       if (out.type === "time") out.offset = 0;
       return out;
     };
+    const cleanOff = (off) => (verbs.hasOff && off.mode !== "none"
+      ? { mode: off.mode, ...clean(off), duration: Math.max(1, parseInt(off.duration, 10) || 60) }
+      : { mode: "none" });
     const options = {};
     const domains = new Set(d.entities.map(tcDomain));
     if (domains.has("light") && d.options.brightness != null) options.brightness = Number(d.options.brightness);
@@ -1159,12 +1343,15 @@ class TimercardCard extends HTMLElement {
       name: (d.name || "").trim() || this._autoName(d.entities),
       enabled: d.enabled,
       entities: d.entities,
-      days: [...d.days].sort(),
+      days: [...d.days].sort((a, b) => a - b),
       on: clean(d.on),
-      off: verbs.hasOff && d.off.mode !== "none"
-        ? { mode: d.off.mode, ...clean(d.off), duration: Math.max(1, parseInt(d.off.duration, 10) || 60) }
-        : { mode: "none" },
+      off: cleanOff(d.off),
       options,
+      overrides: d.overrides.map((o) => ({
+        days: [...o.days].sort((a, b) => a - b),
+        on: clean(o.on),
+        off: cleanOff(o.off),
+      })),
     };
   }
 
@@ -1410,6 +1597,32 @@ const TC_STYLES = `
   .pick-list { display: flex; flex-wrap: wrap; gap: 6px; }
   .pick .tick { --mdc-icon-size: 16px; color: var(--tc-accent); }
 
+  .groups { display: flex; flex-direction: column; gap: 6px; }
+  .group-label { display: flex; align-items: center; gap: 4px; font-size: .8rem; font-weight: 500; color: var(--tc-muted); margin-top: 2px; }
+  .group-label ha-icon { --mdc-icon-size: 14px; }
+  .badge {
+    margin-left: auto; font-size: .78rem; font-weight: 500; padding: 2px 10px; border-radius: 999px;
+    background: var(--tc-soft); color: var(--tc-muted); white-space: nowrap;
+  }
+  .day.elsewhere { border-style: dashed; color: var(--tc-muted); opacity: .7; }
+  .per-day-row {
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+    border-top: 1px dashed var(--tc-line); padding-top: 10px; margin-top: 2px;
+  }
+  .per-day-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .small { font-size: .8rem; }
+  .override {
+    display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 10px;
+    border: 1px solid var(--tc-line); background: color-mix(in srgb, var(--tc-soft) 50%, transparent);
+  }
+  .override-head { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: -4px -6px -4px 0; }
+  .override-head ha-icon { color: var(--tc-accent); }
+  .sub-title { display: flex; align-items: center; gap: 6px; font-weight: 500; font-size: .9rem; padding-top: 4px; }
+  .sub-title ha-icon { --mdc-icon-size: 16px; }
+  .sub-title.on { color: var(--tc-on); }
+  .sub-title.off { color: var(--tc-off); border-top: 1px dashed var(--tc-line); padding-top: 10px; }
+  .add-override { align-self: flex-start; }
+  .summary ul { margin: 4px 0 0; padding-left: 18px; }
   .summary {
     display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: var(--tc-radius);
     background: color-mix(in srgb, var(--tc-accent) 9%, transparent); line-height: 1.45;

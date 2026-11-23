@@ -83,3 +83,45 @@ async def test_sunset_with_offset(hass: HomeAssistant) -> None:
     moment = dt_util.as_local(next_moment(hass, timer, "on", now))
     assert moment.date() == now.date()
     assert 15 <= moment.hour <= 17
+
+
+async def test_weekend_override(hass: HomeAssistant) -> None:
+    """Weekdays 07:00-08:00, weekend 09:30-11:00."""
+    timer = _timer(
+        days=[0, 1, 2, 3, 4],
+        on={"type": "time", "time": "07:00"},
+        off={"mode": "time", "type": "time", "time": "08:00"},
+        overrides=[
+            {
+                "days": [5, 6],
+                "on": {"type": "time", "time": "09:30"},
+                "off": {"mode": "time", "type": "time", "time": "11:00"},
+            }
+        ],
+    )
+    friday_noon = _local(hass, 2026, 11, 27, 12, 0)
+    assert next_moment(hass, timer, "on", friday_noon) == _local(hass, 2026, 11, 28, 9, 30)
+    assert next_moment(hass, timer, "off", friday_noon) == _local(hass, 2026, 11, 28, 11, 0)
+    sunday_noon = _local(hass, 2026, 11, 29, 12, 0)
+    assert next_moment(hass, timer, "on", sunday_noon) == _local(hass, 2026, 11, 30, 7, 0)
+    assert is_active(hass, timer, _local(hass, 2026, 11, 29, 10, 0))
+    assert not is_active(hass, timer, _local(hass, 2026, 11, 29, 7, 30))
+
+
+async def test_override_over_midnight(hass: HomeAssistant) -> None:
+    """Friday night has its own late off time, which ends on Saturday."""
+    timer = _timer(
+        days=[0, 1, 2, 3, 6],
+        on={"type": "time", "time": "20:00"},
+        off={"mode": "time", "type": "time", "time": "23:00"},
+        overrides=[
+            {
+                "days": [4, 5],
+                "on": {"type": "time", "time": "20:00"},
+                "off": {"mode": "time", "type": "time", "time": "01:00"},
+            }
+        ],
+    )
+    friday_21 = _local(hass, 2026, 11, 27, 21, 0)
+    assert next_moment(hass, timer, "off", friday_21) == _local(hass, 2026, 11, 28, 1, 0)
+    assert is_active(hass, timer, _local(hass, 2026, 11, 28, 0, 30))
