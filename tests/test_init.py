@@ -1,0 +1,195 @@
+"""Integration tests for Timercard."""
+
+from datetime import datetime, timedelta
+
+from freezegun.api import FrozenDateTimeFactory
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    async_fire_time_changed,
+    async_mock_service,
+)
+
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
+from homeassistant.util import dt as dt_util
+
+from custom_components.timercard.const import DOMAIN
+
+
+def _local(*args: int) -> datetime:
+    return dt_util.as_utc(datetime(*args, tzinfo=dt_util.get_default_time_zone()))
+
+
+async def _setup(hass: HomeAssistant) -> MockConfigEntry:
+    entry = MockConfigEntry(domain=DOMAIN, data={})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    return entry
+
+
+async def test_timer_turns_on_and_off(
+    hass: HomeAssistant, hass_ws_client, freezer: FrozenDateTimeFactory
+) -> None:
+    """A timer created over websocket fires its on and off actions."""
+    client = await hass_ws_client(hass)
+    freezer.move_to(_local(2026, 11, 23, 18, 0))
+    await _setup(hass)
+    on_calls = async_mock_service(hass, "light", "turn_on")
+    off_calls = async_mock_service(hass, "light", "turn_off")
+    switch_on = async_mock_service(hass, "switch", "turn_on")
+
+    await client.send_json_auto_id(
+        {
+            "type": "timercard/create",
+            "name": "Garden",
+            "entities": ["light.garden", "switch.pump"],
+            "on": {"type": "time", "time": "19:00"},
+            "off": {"mode": "time", "time": "19:30"},
+            "options": {"brightness": 40},
+        }
+    )
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    timer = msg["result"]
+    assert timer["next_on"] == _local(2026, 11, 23, 19, 0).isoformat()
+    assert timer["next_off"] == _local(2026, 11, 23, 19, 30).isoformat()
+
+    # Switch entity created
+    state = hass.states.get("switch.timercard_garden")
+    assert state is not None and state.state == "on"
+
+    freezer.move_to(_local(2026, 11, 23, 19, 0, 1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert len(on_calls) == 1
+    assert on_calls[0].data == {"entity_id": ["light.garden"], "brightness_pct": 40}
+    assert len(switch_on) == 1
+    assert len(off_calls) == 0
+
+    freezer.move_to(_local(2026, 11, 23, 19, 30, 1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert len(off_calls) == 1
+
+    # Next day it repeats
+    freezer.move_to(_local(2026, 11, 24, 19, 0, 1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert len(on_calls) == 2
+
+    # Disable through the switch: nothing fires any more
+    await hass.services.async_call(
+        "switch", "turn_off", {"entity_id": "switch.timercard_garden"}, blocking=True
+    )
+    # (switch.turn_off is the real service: only switch.turn_on is mocked.)
+    assert hass.states.get("switch.timercard_garden").state == "off"
+    assert hass.data[DOMAIN].timers[timer["id"]]["enabled"] is False
+
+    freezer.move_to(_local(2026, 11, 25, 19, 0, 1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert len(on_calls) == 2
+
+
+async def test_update_delete_and_subscribe(
+    hass: HomeAssistant, hass_ws_client, freezer: FrozenDateTimeFactory
+) -> None:
+    """Updating and deleting work and subscribers are told."""
+    client = await hass_ws_client(hass)
+    freezer.move_to(_local(2026, 11, 23, 8, 0))
+    await _setup(hass)
+
+    await client.send_json_auto_id({"type": "timercard/subscribe"})
+    msg = await client.receive_json()
+    assert msg["success"]
+    msg = await client.receive_json()
+    assert msg["event"] == {"timers": []}
+
+    await client.send_json_auto_id(
+        {
+            "type": "timercard/create",
+            "name": "Heater",
+            "entities": ["climate.living"],
+            "days": [0, 2, 4],
+            "on": {"time": "6:30"},
+            "off": {"mode": "duration", "duration": 90},
+        }
+    )
+    event = await client.receive_json()
+    assert len(event["event"]["timers"]) == 1
+    result = await client.receive_json()
+    assert result["success"]
+    timer_id = result["result"]["id"]
+    assert result["result"]["on"]["time"] == "06:30"
+
+    await client.send_json_auto_id(
+        {"type": "timercard/update", "timer_id": timer_id, "name": "Heating"}
+    )
+    event = await client.receive_json()
+    assert event["event"]["timers"][0]["name"] == "Heating"
+    result = await client.receive_json()
+    assert result["success"]
+
+    await client.send_json_auto_id({"type": "timercard/delete", "timer_id": timer_id})
+    event = await client.receive_json()
+    assert event["event"]["timers"] == []
+    result = await client.receive_json()
+    assert result["success"]
+    await hass.async_block_till_done()
+    assert er.async_get(hass).async_get_entity_id("switch", DOMAIN, timer_id) is None
+
+
+async def test_invalid_input_rejected(hass: HomeAssistant, hass_ws_client) -> None:
+    """Bad times and empty day lists are refused."""
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id(
+        {"type": "timercard/create", "entities": ["light.a"], "on": {"time": "25:00"}}
+    )
+    assert not (await client.receive_json())["success"]
+    await client.send_json_auto_id(
+        {
+            "type": "timercard/create",
+            "entities": ["light.a"],
+            "on": {"time": "07:00"},
+            "days": [],
+        }
+    )
+    assert not (await client.receive_json())["success"]
+
+
+async def test_timers_survive_restart(
+    hass: HomeAssistant, hass_ws_client, hass_storage, freezer: FrozenDateTimeFactory
+) -> None:
+    """Timers are loaded from storage."""
+    freezer.move_to(_local(2026, 11, 23, 8, 0))
+    hass_storage[DOMAIN] = {
+        "version": 1,
+        "key": DOMAIN,
+        "data": {
+            "timers": [
+                {
+                    "id": "abc",
+                    "name": "Pump",
+                    "enabled": True,
+                    "entities": ["switch.pump"],
+                    "days": [0, 1, 2, 3, 4, 5, 6],
+                    "on": {"type": "time", "time": "09:00", "offset": 0},
+                    "off": {"mode": "duration", "duration": 10},
+                    "options": {},
+                }
+            ]
+        },
+    }
+    await _setup(hass)
+    on_calls = async_mock_service(hass, "switch", "turn_on")
+    off_calls = async_mock_service(hass, "switch", "turn_off")
+    freezer.move_to(_local(2026, 11, 23, 9, 0, 1))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    freezer.tick(timedelta(minutes=10))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert len(on_calls) == 1
+    assert len(off_calls) == 1

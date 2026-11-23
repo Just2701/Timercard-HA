@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Timercard",
+        "description": "Add Timercard? After this, add the \"Timercard\" card to a dashboard to create your timers."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Timercard is already set up."
+    }
+  }
+}

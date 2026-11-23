@@ -1,0 +1,14 @@
+{
+  "domain": "timercard",
+  "name": "Timercard",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": ["frontend", "http", "websocket_api"],
+  "documentation": "https://github.com/just2701/timercard-ha",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/just2701/timercard-ha/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "1.0.0"
+}
