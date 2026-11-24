@@ -8,7 +8,7 @@
  * and runs the timers.
  */
 
-const TC_VERSION = "1.0.0";
+const TC_VERSION = "1.1.0";
 
 /* Which domains can be scheduled and which words fit their on/off actions. */
 const TC_DOMAINS = {
@@ -260,6 +260,9 @@ class TimercardCard extends HTMLElement {
     this.shadowRoot.addEventListener("input", (ev) => this._onInput(ev));
     this.shadowRoot.addEventListener("change", (ev) => this._onChange(ev));
     this.shadowRoot.addEventListener("keydown", (ev) => this._onKeyDown(ev));
+    this.shadowRoot.addEventListener("focusin", (ev) => {
+      if (ev.target?.classList?.contains("tp-field")) ev.target.select();
+    });
   }
 
   /* ------------------------------------------------------------ HA API */
@@ -823,20 +826,114 @@ class TimercardCard extends HTMLElement {
     ], type);
     if (type === "time") {
       return `${typeSel}
-        <div class="field-row"><input class="time-input" type="time" data-field="${prefix}.time" value="${tcEsc(spec.time)}" required></div>`;
+        <div class="field-row">${this._timePicker(prefix, spec.time)}</div>`;
     }
     const offset = parseInt(spec.offset, 10) || 0;
     const dir = offset < 0 ? "before" : offset > 0 ? "after" : "exact";
+    const sun = this._t(type === "sunrise" ? "sun_sunrise" : "sun_sunset");
+    // Buttons instead of a <select>: native pickers are unreliable in the
+    // Home Assistant Mac app.
     return `${typeSel}
-      <div class="field-row sun-row">
-        <select data-field="${prefix}.dir">
-          <option value="exact" ${dir === "exact" ? "selected" : ""}>${tcEsc(this._t("exactly"))}</option>
-          <option value="before" ${dir === "before" ? "selected" : ""}>${tcEsc(this._t("before"))}</option>
-          <option value="after" ${dir === "after" ? "selected" : ""}>${tcEsc(this._t("after"))}</option>
-        </select>
-        ${dir === "exact" ? "" : `<input class="num" type="number" min="1" max="720" data-field="${prefix}.offset_abs" value="${Math.abs(offset) || 30}"><span class="unit">${tcEsc(this._t("min"))}</span>`}
-        <span class="unit">${tcEsc(this._t(type === "sunrise" ? "sun_sunrise" : "sun_sunset"))}</span>
+      ${this._segmented(`${prefix}.dir`, [
+        { value: "exact", label: `${this._t("exactly")} ${sun}` },
+        { value: "before", label: this._t("before") },
+        { value: "after", label: this._t("after") },
+      ], dir)}
+      ${dir === "exact" ? "" : `<div class="field-row sun-row">
+        <input class="num" type="text" inputmode="numeric" maxlength="3" autocomplete="off" data-field="${prefix}.offset_abs" value="${Math.abs(offset) || 30}">
+        <span class="unit">${tcEsc(this._t("min"))} ${tcEsc(this._t(dir))} ${tcEsc(sun)}</span>
+      </div>`}`;
+  }
+
+  /**
+   * Hour and minute fields with up/down buttons. Deliberately not
+   * <input type="time">: in the Home Assistant Mac app that opens a system
+   * time picker which can crash the app.
+   */
+  _timePicker(prefix, value) {
+    const mins = tcMinutes(value);
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    const h12 = this._hour12;
+    const pad = (n) => String(n).padStart(2, "0");
+    const step = (part, delta, icon) => `
+      <button type="button" class="tp-step" tabindex="-1" data-action="time-step" data-prefix="${prefix}" data-part="${part}" data-delta="${delta}" aria-label="${delta > 0 ? "+" : "-"}">
+        <ha-icon icon="${icon}"></ha-icon>
+      </button>`;
+    return `
+      <div class="time-picker" data-picker="${prefix}">
+        <div class="tp-col">
+          ${step("h", 1, "mdi:chevron-up")}
+          <input class="tp-field" type="text" inputmode="numeric" maxlength="2" autocomplete="off" aria-label="hours" data-field="${prefix}.hh" value="${h12 ? ((h + 11) % 12) + 1 : pad(h)}">
+          ${step("h", -1, "mdi:chevron-down")}
+        </div>
+        <span class="tp-colon">:</span>
+        <div class="tp-col">
+          ${step("m", 5, "mdi:chevron-up")}
+          <input class="tp-field" type="text" inputmode="numeric" maxlength="2" autocomplete="off" aria-label="minutes" data-field="${prefix}.mm" value="${pad(m)}">
+          ${step("m", -5, "mdi:chevron-down")}
+        </div>
+        ${h12 ? `
+          <div class="tp-ampm">
+            <button type="button" class="${h < 12 ? "selected" : ""}" data-action="ampm" data-prefix="${prefix}" data-value="am">AM</button>
+            <button type="button" class="${h >= 12 ? "selected" : ""}" data-action="ampm" data-prefix="${prefix}" data-value="pm">PM</button>
+          </div>` : ""}
       </div>`;
+  }
+
+  /** Write a new time (minutes since midnight) and update the picker in place. */
+  _setTime(prefix, minutes) {
+    const spec = this._resolve(prefix);
+    if (!spec) return;
+    spec.time = tcHHMM(minutes);
+    this._syncTimePicker(prefix);
+    this._refreshLive();
+  }
+
+  _syncTimePicker(prefix) {
+    const spec = this._resolve(prefix);
+    const picker = this.shadowRoot.querySelector(`[data-picker="${prefix}"]`);
+    if (!spec || !picker) return;
+    const mins = tcMinutes(spec.time);
+    const h = Math.floor(mins / 60);
+    const hh = picker.querySelector('[data-field$=".hh"]');
+    const mm = picker.querySelector('[data-field$=".mm"]');
+    const shownH = this._hour12 ? String(((h + 11) % 12) + 1) : String(h).padStart(2, "0");
+    if (hh && hh.value !== shownH) hh.value = shownH;
+    const shownM = String(mins % 60).padStart(2, "0");
+    if (mm && mm.value !== shownM) mm.value = shownM;
+    picker.querySelectorAll("[data-action=ampm]").forEach((b) => {
+      b.classList.toggle("selected", (b.dataset.value === "pm") === (h >= 12));
+    });
+  }
+
+  /** Typing in the hour/minute field. Returns true when the input is complete. */
+  _typeTime(prefix, part, raw) {
+    const spec = this._resolve(prefix);
+    if (!spec) return false;
+    const digits = String(raw).replace(/\D/g, "");
+    if (!digits) return false;
+    const n = parseInt(digits, 10);
+    const mins = tcMinutes(spec.time);
+    let h = Math.floor(mins / 60);
+    let m = mins % 60;
+    if (part === "h") {
+      if (this._hour12) {
+        if (n < 1 || n > 12) return false;
+        h = (n % 12) + (h >= 12 ? 12 : 0);
+      } else {
+        if (n > 23) return false;
+        h = n;
+      }
+    } else {
+      if (n > 59) return false;
+      m = n;
+    }
+    spec.time = tcHHMM(h * 60 + m);
+    this._refreshLive();
+    // Done when two digits are typed or no second digit could follow.
+    if (digits.length >= 2) return true;
+    return part === "h" ? n > (this._hour12 ? 1 : 2) : n > 5;
   }
 
   _optionsEditor() {
@@ -1165,6 +1262,17 @@ class TimercardCard extends HTMLElement {
   _onInput(ev) {
     const field = ev.target?.dataset?.field;
     if (!field || this._view !== "edit") return;
+    const timePart = field.match(/^(.*)\.(hh|mm)$/);
+    if (timePart) {
+      const [, prefix, part] = timePart;
+      const done = this._typeTime(prefix, part === "hh" ? "h" : "m", ev.target.value);
+      if (done && part === "hh") {
+        const next = this.shadowRoot.querySelector(`[data-field="${prefix}.mm"]`);
+        next?.focus();
+        next?.select();
+      }
+      return;
+    }
     this._setField(field, ev.target.value);
     if (field === "search") {
       const results = this.shadowRoot.querySelector(".results");
@@ -1196,6 +1304,12 @@ class TimercardCard extends HTMLElement {
     // "search" is handled on input; a late change event (fired when the old
     // input is removed by a re-render) must not bring back stale text.
     if (!field || field === "search" || this._view !== "edit" || !target.isConnected) return;
+    const timePart = field.match(/^(.*)\.(hh|mm)$/);
+    if (timePart) {
+      // Leaving the field: show the stored time neatly (e.g. "7" -> "07").
+      this._syncTimePicker(timePart[1]);
+      return;
+    }
     this._setField(field, target.value);
     // Selects change the layout (e.g. the minutes field appears).
     if (field.endsWith(".dir")) this._renderEditor();
@@ -1204,6 +1318,15 @@ class TimercardCard extends HTMLElement {
 
   _onKeyDown(ev) {
     const target = ev.target;
+    const timePart = target?.dataset?.field?.match(/^(.*)\.(hh|mm)$/);
+    if (timePart && (ev.key === "ArrowUp" || ev.key === "ArrowDown")) {
+      ev.preventDefault();
+      const spec = this._resolve(timePart[1]);
+      const delta = (ev.key === "ArrowUp" ? 1 : -1) * (timePart[2] === "hh" ? 60 : 1);
+      if (spec) this._setTime(timePart[1], tcMinutes(spec.time) + delta);
+      target.select();
+      return;
+    }
     if (target?.dataset?.field === "search" && ev.key === "Enter") {
       ev.preventDefault();
       const first = this.shadowRoot.querySelector(".result");
@@ -1291,6 +1414,29 @@ class TimercardCard extends HTMLElement {
         this._customDuration.add(el.dataset.prefix);
         this._renderEditor();
         break;
+      case "time-step": {
+        const spec = this._resolve(el.dataset.prefix);
+        if (!spec) break;
+        const mins = tcMinutes(spec.time);
+        const delta = parseInt(el.dataset.delta, 10);
+        if (el.dataset.part === "h") {
+          this._setTime(el.dataset.prefix, mins + delta * 60);
+        } else {
+          // Minutes move in steps of 5 and stay within the hour.
+          const m = mins % 60;
+          const next = delta > 0 ? Math.floor(m / 5) * 5 + 5 : Math.ceil(m / 5) * 5 - 5;
+          this._setTime(el.dataset.prefix, mins - m + ((next % 60) + 60) % 60);
+        }
+        break;
+      }
+      case "ampm": {
+        const spec = this._resolve(el.dataset.prefix);
+        if (!spec) break;
+        const mins = tcMinutes(spec.time);
+        const pm = el.dataset.value === "pm";
+        this._setTime(el.dataset.prefix, (mins % 720) + (pm ? 720 : 0));
+        break;
+      }
       case "save":
         this._save();
         break;
@@ -1550,16 +1696,31 @@ const TC_STYLES = `
   .day { width: 44px; justify-content: center; padding: 6px 0; text-transform: capitalize; }
 
   .field-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .time-input {
-    font-size: 1.6rem; font-variant-numeric: tabular-nums; padding: 6px 10px; border-radius: 10px;
-    border: 1px solid var(--tc-line); background: var(--tc-soft); color: var(--tc-text); min-width: 140px;
+  .time-picker { display: inline-flex; align-items: center; gap: 4px; }
+  .tp-col { display: flex; flex-direction: column; align-items: center; }
+  .tp-step {
+    border: none; background: none; padding: 0 12px; border-radius: 8px; color: var(--tc-muted);
+    display: inline-flex; min-height: 28px; align-items: center;
   }
-  .time-input::-webkit-calendar-picker-indicator { filter: var(--timercard-picker-filter, none); }
+  .tp-step:hover { background: var(--tc-soft); color: var(--tc-text); }
+  .tp-step ha-icon { --mdc-icon-size: 24px; }
+  .tp-field {
+    width: 68px; text-align: center; font-size: 1.8rem; font-variant-numeric: tabular-nums; padding: 4px 0;
+    border-radius: 10px; border: 1px solid var(--tc-line); background: var(--tc-soft); color: var(--tc-text);
+  }
+  .tp-colon { font-size: 1.8rem; font-weight: 500; padding-bottom: 2px; }
+  .tp-ampm { display: flex; flex-direction: column; gap: 6px; margin-left: 8px; }
+  .tp-ampm button {
+    border: 1px solid var(--tc-line); background: var(--tc-card); border-radius: 8px; padding: 4px 10px;
+    font-size: .85rem; min-height: 32px;
+  }
+  .tp-ampm button.selected {
+    background: color-mix(in srgb, var(--tc-accent) 16%, transparent); border-color: var(--tc-accent); font-weight: 500;
+  }
   .num { width: 76px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--tc-line); background: var(--tc-soft); }
-  select { padding: 7px 8px; border-radius: 8px; border: 1px solid var(--tc-line); background: var(--tc-soft); }
   .unit { color: var(--tc-muted); }
   .text-input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--tc-line); background: var(--tc-soft); }
-  input:focus-visible, select:focus-visible { outline: 2px solid var(--tc-accent); outline-offset: 1px; }
+  input:focus-visible { outline: 2px solid var(--tc-accent); outline-offset: 1px; }
   input[type=range] { flex: 1; min-width: 120px; accent-color: var(--tc-on); }
   .range-val { min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
   .next-day-note { display: flex; align-items: center; gap: 6px; color: var(--tc-muted); font-size: .85rem; }
