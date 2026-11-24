@@ -41,6 +41,30 @@ Home Assistant config, restart, then follow steps 3 and 4 above.
 
 You don't need to add a dashboard resource: the integration loads the card for you.
 
+### The card is not in the "Add card" list?
+
+1. **Did you add the integration?** Downloading it in HACS is not enough.
+   Restart Home Assistant, then go to **Settings → Devices & services →
+   Add integration → Timercard**. You should see *Timercard* in your list of
+   integrations.
+2. **Refresh the page** after adding the integration. The card is only
+   loaded when the page loads.
+   - Browser: press **Ctrl+F5** (Mac: **Cmd+Shift+R**).
+   - Home Assistant app: **Settings → Companion app → Debugging → Reset
+     frontend cache**, then close and reopen the app.
+3. **Search for it**: in **Add card**, type `timercard` in the search box.
+   Custom cards are listed at the bottom, below the built-in cards.
+4. Still nothing? Choose **Manual** in the card list and paste:
+
+   ```yaml
+   type: custom:timercard-card
+   ```
+
+   If that shows *"Custom element doesn't exist: timercard-card"*, the card
+   file is not being loaded. Open
+   `http://<your-home-assistant>:8123/timercard_static/timercard-card.js`.
+   If you get an error instead of code, the integration is not set up (step 1).
+
 ## Different times on some days
 
 At the bottom of **On which days?** there is a switch **Different times on

@@ -8,6 +8,9 @@
     },
     "abort": {
       "single_instance_allowed": "Timercard is already set up."
+    },
+    "create_entry": {
+      "default": "Timercard is ready. Now refresh your browser (Ctrl+F5, or Cmd+Shift+R on a Mac). In the Home Assistant app: Settings → Companion app → Debugging → Reset frontend cache. Then edit a dashboard, choose Add card and search for \"Timercard\"."
     }
   }
 }

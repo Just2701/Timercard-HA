@@ -8,6 +8,9 @@
     },
     "abort": {
       "single_instance_allowed": "Timercard is al ingesteld."
+    },
+    "create_entry": {
+      "default": "Timercard is klaar. Ververs nu je browser (Ctrl+F5, of Cmd+Shift+R op een Mac). In de Home Assistant-app: Instellingen → Companion-app → Foutopsporing → Frontend-cache resetten. Bewerk daarna een dashboard, kies Kaart toevoegen en zoek op \"Timercard\"."
     }
   }
 }
