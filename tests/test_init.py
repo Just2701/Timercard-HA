@@ -299,3 +299,31 @@ async def test_only_off_timer(
         await hass.async_block_till_done()
     assert len(on_calls) == 0
     assert len(off_calls) == 2
+
+
+async def test_restore_from_backup(
+    hass: HomeAssistant, hass_storage, freezer: FrozenDateTimeFactory
+) -> None:
+    """When the main file is gone the timers come back from the backup."""
+    freezer.move_to(_local(2026, 11, 23, 8, 0))
+    hass_storage[f"{DOMAIN}.backup"] = {
+        "version": 1,
+        "key": f"{DOMAIN}.backup",
+        "data": {
+            "timers": [
+                {
+                    "id": "abc",
+                    "name": "Pump",
+                    "enabled": True,
+                    "entities": ["switch.pump"],
+                    "days": [0, 1, 2, 3, 4, 5, 6],
+                    "on": {"type": "time", "time": "09:00", "offset": 0},
+                    "off": {"mode": "duration", "duration": 10},
+                    "options": {},
+                }
+            ]
+        },
+    }
+    await _setup(hass)
+    assert list(hass.data[DOMAIN].timers) == ["abc"]
+    assert hass.states.get("switch.timercard_pump") is not None

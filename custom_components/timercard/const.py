@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "timercard"
-VERSION: Final = "1.3.0"
+VERSION: Final = "1.4.0"
 
 STORAGE_KEY: Final = DOMAIN
 STORAGE_VERSION: Final = 1

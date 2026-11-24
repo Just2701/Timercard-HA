@@ -40,7 +40,23 @@ when no dashboard is open and after a restart.
 Copy `custom_components/timercard` into the `custom_components` folder of your
 Home Assistant config, restart, then follow steps 3 and 4 above.
 
-You don't need to add a dashboard resource: the integration loads the card for you.
+You don't need to add a dashboard resource: the integration does that for
+you. It places a copy of the card in `www/timercard/` and adds it as a
+dashboard resource, so the card also loads while Home Assistant is still
+starting.
+
+### Updating
+
+HACS shows new versions with their number (e.g. *1.3.0 → 1.4.0*) and the
+list of changes. Update, restart Home Assistant once, and refresh the page.
+Your timers are kept. To check for an update right away: HACS → Timercard →
+⋮ → **Update information**. See [CHANGELOG.md](CHANGELOG.md) for all changes.
+
+### Your timers are safe
+
+Timers are stored in `.storage/timercard` with a backup copy in
+`.storage/timercard.backup`. Removing and adding the integration again
+keeps them, and they are part of every Home Assistant backup.
 
 ### The card is not in the "Add card" list?
 
@@ -62,7 +78,8 @@ You don't need to add a dashboard resource: the integration loads the card for y
    ```
 
    If that shows *"Custom element doesn't exist: timercard-card"*, the card
-   file is not being loaded. Open
+   file is not being loaded. Check **Settings → Dashboards → ⋮ → Resources**
+   for `/local/timercard/timercard-card.js` and open
    `http://<your-home-assistant>:8123/timercard_static/timercard-card.js`.
    If you get an error instead of code, the integration is not set up (step 1).
 

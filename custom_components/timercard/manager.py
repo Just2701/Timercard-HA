@@ -76,6 +76,10 @@ class TimerManager:
         """Initialize the manager."""
         self.hass = hass
         self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
+        # A second copy, used if the main file is ever missing or damaged.
+        self._backup: Store[dict[str, Any]] = Store(
+            hass, STORAGE_VERSION, f"{STORAGE_KEY}.backup"
+        )
         self.timers: dict[str, dict[str, Any]] = {}
         self._unsubs: dict[str, dict[str, CALLBACK_TYPE]] = {}
         self._listeners: list[Callable[[], None]] = []
@@ -83,7 +87,22 @@ class TimerManager:
     # ------------------------------------------------------------------ setup
     async def async_load(self) -> None:
         """Load timers from storage and schedule them."""
-        data = await self._store.async_load() or {}
+        try:
+            data = await self._store.async_load()
+        except Exception:  # noqa: BLE001 - damaged file: fall back to the backup
+            _LOGGER.exception("Could not read the Timercard timers, trying the backup")
+            data = None
+        if data is None:
+            backup = await self._backup.async_load()
+            if backup and backup.get("timers"):
+                _LOGGER.warning(
+                    "Restored %s Timercard timer(s) from the backup", len(backup["timers"])
+                )
+                data = backup
+                await self._store.async_save(backup)
+        data = data or {}
+        if data.get("timers"):
+            await self._backup.async_save(data)
         self.timers = {timer["id"]: timer for timer in data.get("timers", [])}
         for timer_id in self.timers:
             self._schedule(timer_id)
@@ -95,7 +114,9 @@ class TimerManager:
             self._cancel(timer_id)
 
     async def _async_save(self) -> None:
-        await self._store.async_save({"timers": list(self.timers.values())})
+        data = {"timers": list(self.timers.values())}
+        await self._store.async_save(data)
+        await self._backup.async_save(data)
 
     # -------------------------------------------------------------- listeners
     @callback

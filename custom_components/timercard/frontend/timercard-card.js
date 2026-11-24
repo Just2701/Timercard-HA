@@ -8,7 +8,7 @@
  * and runs the timers.
  */
 
-const TC_VERSION = "1.3.0";
+const TC_VERSION = "1.4.0";
 
 /* Which domains can be scheduled and which words fit their on/off actions. */
 const TC_DOMAINS = {
@@ -64,6 +64,7 @@ const TC_I18N = {
     "edit_timer": "Edit timer",
     "empty": "No timers yet. Tap “New timer” to make your first one.",
     "not_loaded": "The Timercard integration is not set up yet. Go to Settings → Devices & services → Add integration and choose “Timercard”.",
+    "waiting": "Waiting for Timercard to start… This message goes away by itself. If it stays, check that the Timercard integration is set up under Settings → Devices & services.",
     "loading": "Loading timers…",
     "step_devices": "What should the timer control?",
     "search": "Search for a device…",
@@ -168,6 +169,7 @@ const TC_I18N = {
     "edit_timer": "Timer bewerken",
     "empty": "Nog geen timers. Tik op “Nieuwe timer” om je eerste te maken.",
     "not_loaded": "De Timercard-integratie is nog niet ingesteld. Ga naar Instellingen → Apparaten & diensten → Integratie toevoegen en kies “Timercard”.",
+    "waiting": "Wachten tot Timercard gestart is… Deze melding verdwijnt vanzelf. Blijft ze staan, controleer dan of de Timercard-integratie is ingesteld onder Instellingen → Apparaten & diensten.",
     "loading": "Timers laden…",
     "step_devices": "Wat moet de timer bedienen?",
     "search": "Zoek een apparaat…",
@@ -272,6 +274,7 @@ const TC_I18N = {
     "edit_timer": "编辑定时器",
     "empty": "还没有定时器。点击“新建定时器”创建第一个。",
     "not_loaded": "Timercard 集成尚未设置。请前往“设置 → 设备与服务 → 添加集成”，然后选择“Timercard”。",
+    "waiting": "正在等待 Timercard 启动… 此消息会自动消失。如果一直显示，请在“设置 → 设备与服务”中检查是否已设置 Timercard 集成。",
     "loading": "正在加载定时器…",
     "step_devices": "定时器要控制什么？",
     "search": "搜索设备…",
@@ -376,6 +379,7 @@ const TC_I18N = {
     "edit_timer": "टाइमर बदलें",
     "empty": "अभी कोई टाइमर नहीं है। पहला टाइमर बनाने के लिए “नया टाइमर” पर टैप करें।",
     "not_loaded": "Timercard इंटीग्रेशन अभी सेट नहीं है। सेटिंग्स → डिवाइस और सेवाएँ → इंटीग्रेशन जोड़ें पर जाएँ और “Timercard” चुनें।",
+    "waiting": "Timercard के शुरू होने की प्रतीक्षा है… यह संदेश अपने आप हट जाएगा। अगर यह बना रहे, तो सेटिंग्स → डिवाइस और सेवाएँ में देखें कि Timercard इंटीग्रेशन सेट है।",
     "loading": "टाइमर लोड हो रहे हैं…",
     "step_devices": "टाइमर किसे नियंत्रित करे?",
     "search": "डिवाइस खोजें…",
@@ -480,6 +484,7 @@ const TC_I18N = {
     "edit_timer": "Editar temporizador",
     "empty": "Aún no hay temporizadores. Toca «Nuevo temporizador» para crear el primero.",
     "not_loaded": "La integración Timercard aún no está configurada. Ve a Ajustes → Dispositivos y servicios → Añadir integración y elige «Timercard».",
+    "waiting": "Esperando a que Timercard se inicie… Este mensaje desaparece solo. Si no desaparece, comprueba que la integración Timercard está configurada en Ajustes → Dispositivos y servicios.",
     "loading": "Cargando temporizadores…",
     "step_devices": "¿Qué debe controlar el temporizador?",
     "search": "Buscar un dispositivo…",
@@ -584,6 +589,7 @@ const TC_I18N = {
     "edit_timer": "تعديل المؤقت",
     "empty": "لا توجد مؤقتات بعد. اضغط على «مؤقت جديد» لإنشاء أول مؤقت.",
     "not_loaded": "لم يتم إعداد تكامل Timercard بعد. انتقل إلى الإعدادات ← الأجهزة والخدمات ← إضافة تكامل واختر «Timercard».",
+    "waiting": "في انتظار بدء Timercard… ستختفي هذه الرسالة تلقائيًا. إذا بقيت، فتحقق من إعداد تكامل Timercard في الإعدادات ← الأجهزة والخدمات.",
     "loading": "جارٍ تحميل المؤقتات…",
     "step_devices": "ما الذي يتحكم فيه المؤقت؟",
     "search": "ابحث عن جهاز…",
@@ -688,6 +694,7 @@ const TC_I18N = {
     "edit_timer": "Modifier le minuteur",
     "empty": "Aucun minuteur pour l’instant. Touchez « Nouveau minuteur » pour créer le premier.",
     "not_loaded": "L’intégration Timercard n’est pas encore configurée. Allez dans Paramètres → Appareils et services → Ajouter une intégration et choisissez « Timercard ».",
+    "waiting": "En attente du démarrage de Timercard… Ce message disparaît tout seul. S’il reste affiché, vérifiez que l’intégration Timercard est configurée dans Paramètres → Appareils et services.",
     "loading": "Chargement des minuteurs…",
     "step_devices": "Que doit commander le minuteur ?",
     "search": "Rechercher un appareil…",
@@ -792,6 +799,7 @@ const TC_I18N = {
     "edit_timer": "টাইমার সম্পাদনা",
     "empty": "এখনও কোনো টাইমার নেই। প্রথমটি বানাতে “নতুন টাইমার”-এ ট্যাপ করুন।",
     "not_loaded": "Timercard ইন্টিগ্রেশন এখনও সেট আপ করা হয়নি। সেটিংস → ডিভাইস ও পরিষেবা → ইন্টিগ্রেশন যোগ করুন-এ গিয়ে “Timercard” বেছে নিন।",
+    "waiting": "Timercard চালু হওয়ার অপেক্ষা… এই বার্তাটি নিজে থেকেই চলে যাবে। যদি থেকে যায়, তাহলে সেটিংস → ডিভাইস ও পরিষেবা-তে Timercard ইন্টিগ্রেশন সেট আপ আছে কি না দেখুন।",
     "loading": "টাইমার লোড হচ্ছে…",
     "step_devices": "টাইমার কী নিয়ন্ত্রণ করবে?",
     "search": "ডিভাইস খুঁজুন…",
@@ -896,6 +904,7 @@ const TC_I18N = {
     "edit_timer": "Editar temporizador",
     "empty": "Ainda não há temporizadores. Toque em “Novo temporizador” para criar o primeiro.",
     "not_loaded": "A integração Timercard ainda não está configurada. Vá a Configurações → Dispositivos e serviços → Adicionar integração e escolha “Timercard”.",
+    "waiting": "Aguardando o Timercard iniciar… Esta mensagem some sozinha. Se continuar, verifique se a integração Timercard está configurada em Configurações → Dispositivos e serviços.",
     "loading": "Carregando temporizadores…",
     "step_devices": "O que o temporizador deve controlar?",
     "search": "Pesquisar um dispositivo…",
@@ -1000,6 +1009,7 @@ const TC_I18N = {
     "edit_timer": "Изменить таймер",
     "empty": "Таймеров пока нет. Нажмите «Новый таймер», чтобы создать первый.",
     "not_loaded": "Интеграция Timercard ещё не настроена. Откройте Настройки → Устройства и службы → Добавить интеграцию и выберите «Timercard».",
+    "waiting": "Ожидание запуска Timercard… Это сообщение исчезнет само. Если оно не исчезает, проверьте, что интеграция Timercard настроена в разделе Настройки → Устройства и службы.",
     "loading": "Загрузка таймеров…",
     "step_devices": "Чем должен управлять таймер?",
     "search": "Найти устройство…",
@@ -1104,6 +1114,7 @@ const TC_I18N = {
     "edit_timer": "ٹائمر میں ترمیم",
     "empty": "ابھی کوئی ٹائمر نہیں ہے۔ پہلا ٹائمر بنانے کے لیے “نیا ٹائمر” پر ٹیپ کریں۔",
     "not_loaded": "Timercard انٹیگریشن ابھی سیٹ اپ نہیں ہوئی۔ سیٹنگز ← ڈیوائسز اور سروسز ← انٹیگریشن شامل کریں پر جائیں اور “Timercard” منتخب کریں۔",
+    "waiting": "Timercard کے شروع ہونے کا انتظار… یہ پیغام خود ہی ہٹ جائے گا۔ اگر یہ رہے تو سیٹنگز ← ڈیوائسز اور سروسز میں دیکھیں کہ Timercard انٹیگریشن سیٹ اپ ہے۔",
     "loading": "ٹائمر لوڈ ہو رہے ہیں…",
     "step_devices": "ٹائمر کس کو کنٹرول کرے؟",
     "search": "ڈیوائس تلاش کریں…",
@@ -1208,6 +1219,7 @@ const TC_I18N = {
     "edit_timer": "Ubah timer",
     "empty": "Belum ada timer. Ketuk “Timer baru” untuk membuat yang pertama.",
     "not_loaded": "Integrasi Timercard belum disiapkan. Buka Pengaturan → Perangkat & layanan → Tambahkan integrasi lalu pilih “Timercard”.",
+    "waiting": "Menunggu Timercard dimulai… Pesan ini akan hilang sendiri. Jika tetap muncul, periksa apakah integrasi Timercard sudah disiapkan di Pengaturan → Perangkat & layanan.",
     "loading": "Memuat timer…",
     "step_devices": "Apa yang harus dikendalikan timer?",
     "search": "Cari perangkat…",
@@ -1384,6 +1396,7 @@ class TimercardCard extends HTMLElement {
   }
 
   connectedCallback() {
+    this._attached = true;
     if (this._hass) this._subscribe();
     this._tick = setInterval(() => {
       if (this._view === "list") this._render();
@@ -1391,8 +1404,14 @@ class TimercardCard extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._attached = false;
     clearInterval(this._tick);
+    clearTimeout(this._retryTimer);
     this._unsubscribe();
+    if (this._readyConn) {
+      this._readyConn.removeEventListener("ready", this._onReady);
+      this._readyConn = null;
+    }
   }
 
   getCardSize() {
@@ -1407,20 +1426,43 @@ class TimercardCard extends HTMLElement {
   /* ---------------------------------------------------------- data */
   async _subscribe() {
     if (this._subPromise || !this._hass) return;
-    this._subPromise = this._hass.connection.subscribeMessage(
+    const conn = this._hass.connection;
+    // After Home Assistant restarts, subscribe again ourselves: Timercard may
+    // still be starting at the moment the connection comes back.
+    if (this._readyConn !== conn) {
+      if (this._readyConn) this._readyConn.removeEventListener("ready", this._onReady);
+      this._onReady = this._onReady || (() => {
+        this._unsubscribe();
+        this._subscribe();
+      });
+      conn.addEventListener("ready", this._onReady);
+      this._readyConn = conn;
+    }
+    clearTimeout(this._retryTimer);
+    this._subPromise = conn.subscribeMessage(
       (msg) => {
         this._timers = msg.timers || [];
         this._error = null;
         if (this._view === "list") this._render();
       },
-      { type: "timercard/subscribe" }
+      { type: "timercard/subscribe" },
+      { resubscribe: false }
     );
     try {
       this._unsub = await this._subPromise;
+      if (this._error) {
+        this._error = null;
+        if (this._view === "list") this._render();
+      }
     } catch (err) {
       this._subPromise = null;
       this._error = err;
       this._render();
+      // Timercard not (yet) running: keep trying, so the card fills in by
+      // itself as soon as Home Assistant has finished starting.
+      if (this._attached !== false) {
+        this._retryTimer = setTimeout(() => this._subscribe(), 5000);
+      }
     }
   }
 
@@ -1734,7 +1776,7 @@ class TimercardCard extends HTMLElement {
     if (this._error) {
       const code = this._error?.code;
       const msg = code === "unknown_command" || code === "not_loaded"
-        ? this._t("not_loaded")
+        ? this._t("waiting")
         : this._t("error", { msg: tcEsc(this._error?.message || code || this._error) });
       body = `<div class="notice">${msg}</div>`;
     } else if (this._timers === null) {

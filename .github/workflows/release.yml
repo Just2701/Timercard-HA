@@ -1,0 +1,41 @@
+# Publishes a GitHub release whenever the version in manifest.json changes,
+# so HACS shows real version numbers (e.g. 1.4.0) and the release notes
+# from CHANGELOG.md, instead of a commit id.
+name: Release
+
+on:
+  push:
+    paths:
+      - custom_components/timercard/manifest.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        id: version
+        run: echo "version=$(jq -r .version custom_components/timercard/manifest.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Create release (if this version has none yet)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if gh release view "v$VERSION" > /dev/null 2>&1; then
+            echo "Release v$VERSION already exists"
+            exit 0
+          fi
+          # Release notes: the "## <version>" section of CHANGELOG.md
+          awk -v v="$VERSION" '
+            $0 ~ "^## " { if (found) exit; if ($2 == v) { found = 1; next } }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Timercard $VERSION" > notes.md
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "Timercard $VERSION" --notes-file notes.md
