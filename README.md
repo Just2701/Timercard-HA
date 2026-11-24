@@ -80,6 +80,19 @@ option off again gives all days the main times.
 
 <img src="docs/docs-per-day.png" width="380" alt="Different times on some days">
 
+## Making the card wider
+
+The card always fills the width it gets. When it is wide enough, timers are
+shown side by side (2, 3 or more per row).
+
+- **Sections dashboard** (the default): click the pencil to edit the dashboard,
+  click the pencil of the section with the card, and on **Settings** drag
+  **Width** to 2, 3 or 4. Tip: give the Timercard its own section.
+- **Panel view**: one card over the whole width. Edit the view and choose
+  **View type → Panel (single card)**.
+- **Masonry view** (older dashboards): cards are always one column wide
+  there; switch the view to *Sections* to use the options above.
+
 ## Card options
 
 ```yaml

@@ -8,7 +8,7 @@
  * and runs the timers.
  */
 
-const TC_VERSION = "1.2.0";
+const TC_VERSION = "1.3.0";
 
 /* Which domains can be scheduled and which words fit their on/off actions. */
 const TC_DOMAINS = {
@@ -1400,7 +1400,8 @@ class TimercardCard extends HTMLElement {
   }
 
   getGridOptions() {
-    return { columns: 12, min_columns: 6, rows: "auto" };
+    // Fill the whole section; make the section wider for more room.
+    return { columns: "full", min_columns: 6, rows: "auto" };
   }
 
   /* ---------------------------------------------------------- data */
@@ -2750,7 +2751,7 @@ const TC_STYLES = `
     display: block;
   }
   * { box-sizing: border-box; }
-  ha-card { overflow: hidden; color: var(--tc-text); }
+  ha-card { overflow: hidden; color: var(--tc-text); container-type: inline-size; }
   ha-icon { --mdc-icon-size: 18px; flex: none; }
   button { font: inherit; color: inherit; cursor: pointer; }
   input, select { font: inherit; color: var(--tc-text); }
@@ -2985,6 +2986,14 @@ const TC_STYLES = `
   .small-btn.off { color: var(--tc-off); border-color: var(--tc-off); }
   .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .spacer { flex: 1; }
+
+  /* Wide card (wide dashboard section, panel view): timers side by side,
+     and the editor stays a comfortable width in the middle. */
+  @container (min-width: 720px) {
+    .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); align-items: start; }
+    .list > .notice, .list > .empty { grid-column: 1 / -1; }
+    .editor { max-width: 760px; margin-inline: auto; }
+  }
 
   @media (max-width: 420px) {
     .event-time { font-size: 1.3rem; }
