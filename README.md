@@ -10,8 +10,9 @@ device on and what turns it off again.
 </p>
 
 - 🟢 **On** and 🔴 **Off** in the same timer: "Garden lights: on at 19:00, off at 23:00"
+- 🔀 Or a timer that **only turns on** or **only turns off** (e.g. "all lights off at 23:30")
 - ⏰ Turn on at a **set time**, at **sunrise** or at **sunset** (with an offset, e.g. "15 min after sunrise")
-- ⌛ Turn off at a set time, at sunrise/sunset, **after a while** (e.g. "after 15 min"), or not at all
+- ⌛ Turn off at a set time, at sunrise/sunset, or **after a while** (e.g. "after 15 min")
 - 🌙 Off time earlier than on time (e.g. 22:00 → 06:30) means **the next day**
 - 📅 Pick days with one tap: *Every day*, *Weekdays*, *Weekend*, or single days
 - 🗓️ Optional **different times on some days** (e.g. later in the weekend). It stays hidden until you switch it on
@@ -20,7 +21,7 @@ device on and what turns it off again.
 - 📊 A 24-hour bar per timer showing when the device is on, plus "Next: turn on today at 19:00"
 - ⏸️ Pause a timer with its toggle. Each timer is also a `switch.timercard_…` entity, so automations can pause timers too (e.g. on holiday)
 - ▶️ "Try it now" buttons to test a timer straight away
-- 🇬🇧 English and 🇳🇱 Dutch (follows your Home Assistant language)
+- 🌍 12 languages, following your Home Assistant language: English, Mandarin Chinese, Hindi, Spanish, Arabic, French, Bengali, Portuguese, Russian, Urdu, Indonesian and Dutch (Arabic and Urdu right-to-left)
 
 The timers are stored and run by Home Assistant itself, so they keep working
 when no dashboard is open and after a restart.
@@ -115,6 +116,13 @@ with `timer_id`, `name`, `event` (`on`/`off`) and `entities`.
 - If Home Assistant is not running at the moment a timer should fire,
   that moment is skipped (it is not caught up after a restart).
 - Times are in your Home Assistant time zone.
+
+## Translations
+
+All texts live in `tools/translations.py`. After changing them run
+`python3 tools/translations.py`, which updates the card and the integration's
+`translations/` files and checks that no text or placeholder is missing.
+Improvements by native speakers are very welcome.
 
 ## Development
 

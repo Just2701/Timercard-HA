@@ -254,3 +254,48 @@ async def test_per_day_times_over_websocket(
     await hass.async_block_till_done()
     assert len(on_calls) == 1
 
+
+
+async def test_only_off_timer(
+    hass: HomeAssistant, hass_ws_client, freezer: FrozenDateTimeFactory
+) -> None:
+    """An "only turn off" timer calls only the off service."""
+    client = await hass_ws_client(hass)
+    freezer.move_to(_local(2026, 11, 23, 12, 0))
+    await _setup(hass)
+    on_calls = async_mock_service(hass, "light", "turn_on")
+    off_calls = async_mock_service(hass, "light", "turn_off")
+
+    await client.send_json_auto_id(
+        {
+            "type": "timercard/create",
+            "action": "off",
+            "entities": ["light.hall"],
+            "on": {"time": "07:00"},
+            "off": {"mode": "duration", "duration": 10},
+        }
+    )
+    assert not (await client.receive_json())["success"]
+
+    await client.send_json_auto_id(
+        {
+            "type": "timercard/create",
+            "name": "Lights out",
+            "action": "off",
+            "entities": ["light.hall"],
+            "on": {"time": "07:00"},
+            "off": {"mode": "time", "time": "23:30"},
+        }
+    )
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    assert msg["result"]["next_on"] is None
+    assert msg["result"]["next_off"] == _local(2026, 11, 23, 23, 30).isoformat()
+    assert hass.states.get("switch.timercard_lights_out").attributes["action"] == "off"
+
+    for moment in (_local(2026, 11, 24, 7, 0, 1), _local(2026, 11, 24, 23, 30, 1)):
+        freezer.move_to(moment)
+        async_fire_time_changed(hass)
+        await hass.async_block_till_done()
+    assert len(on_calls) == 0
+    assert len(off_calls) == 2

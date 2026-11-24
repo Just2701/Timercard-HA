@@ -64,6 +64,7 @@ class TimerSwitch(SwitchEntity):
         info = self._manager.as_dict(self._timer_id)
         return {
             "timer_id": self._timer_id,
+            "action": info.get("action", "on_off"),
             "entities": info.get("entities", []),
             "days": info.get("days", []),
             "on": info.get("on"),

@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Timercard",
+        "description": "添加 Timercard？完成后，将“Timercard”卡片添加到仪表板即可创建定时器。"
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Timercard 已经设置好了。"
+    },
+    "create_entry": {
+      "default": "Timercard 已就绪。请刷新浏览器（Ctrl+F5，Mac 上为 Cmd+Shift+R）。在 Home Assistant 应用中：设置 → 配套应用 → 调试 → 重置前端缓存。然后编辑仪表板，选择“添加卡片”并搜索“Timercard”。"
+    }
+  }
+}

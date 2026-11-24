@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Timercard",
+        "description": "¿Añadir Timercard? Después, añade la tarjeta \"Timercard\" a un panel para crear tus temporizadores."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Timercard ya está configurado."
+    },
+    "create_entry": {
+      "default": "Timercard está listo. Ahora actualiza el navegador (Ctrl+F5, o Cmd+Shift+R en un Mac). En la app de Home Assistant: Ajustes → App complementaria → Depuración → Restablecer caché del frontend. Luego edita un panel, elige Añadir tarjeta y busca \"Timercard\"."
+    }
+  }
+}

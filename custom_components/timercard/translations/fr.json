@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Timercard",
+        "description": "Ajouter Timercard ? Ajoutez ensuite la carte « Timercard » à un tableau de bord pour créer vos minuteurs."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Timercard est déjà configuré."
+    },
+    "create_entry": {
+      "default": "Timercard est prêt. Actualisez maintenant votre navigateur (Ctrl+F5, ou Cmd+Maj+R sur Mac). Dans l’app Home Assistant : Paramètres → Application compagnon → Débogage → Réinitialiser le cache du frontend. Modifiez ensuite un tableau de bord, choisissez Ajouter une carte et recherchez « Timercard »."
+    }
+  }
+}

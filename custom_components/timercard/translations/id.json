@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Timercard",
+        "description": "Tambahkan Timercard? Setelah itu, tambahkan kartu \"Timercard\" ke dasbor untuk membuat timer."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Timercard sudah disiapkan."
+    },
+    "create_entry": {
+      "default": "Timercard siap. Sekarang muat ulang browser (Ctrl+F5, atau Cmd+Shift+R di Mac). Di aplikasi Home Assistant: Pengaturan → Aplikasi pendamping → Debugging → Atur ulang cache frontend. Lalu ubah dasbor, pilih Tambah kartu dan cari \"Timercard\"."
+    }
+  }
+}

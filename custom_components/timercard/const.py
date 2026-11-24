@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "timercard"
-VERSION: Final = "1.1.0"
+VERSION: Final = "1.2.0"
 
 STORAGE_KEY: Final = DOMAIN
 STORAGE_VERSION: Final = 1
@@ -27,6 +27,12 @@ OFF_MODE_NONE: Final = "none"
 OFF_MODE_TIME: Final = "time"
 OFF_MODE_DURATION: Final = "duration"
 OFF_MODES: Final = (OFF_MODE_NONE, OFF_MODE_TIME, OFF_MODE_DURATION)
+
+# What a timer does: switch on and off, only on, or only off
+ACTION_ON_OFF: Final = "on_off"
+ACTION_ON: Final = "on"
+ACTION_OFF: Final = "off"
+ACTIONS: Final = (ACTION_ON_OFF, ACTION_ON, ACTION_OFF)
 
 EVENT_ON: Final = "on"
 EVENT_OFF: Final = "off"

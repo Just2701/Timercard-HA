@@ -18,6 +18,9 @@ from homeassistant.helpers.sun import get_astral_event_date
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    ACTION_OFF,
+    ACTION_ON,
+    ACTION_ON_OFF,
     ALL_DAYS,
     EVENT_OFF,
     EVENT_ON,
@@ -77,23 +80,30 @@ def specs_for_weekday(
 
 def period_for_day(
     hass: HomeAssistant, timer: dict[str, Any], day: date
-) -> tuple[datetime, datetime | None] | None:
+) -> tuple[datetime | None, datetime | None] | None:
     """Return (on, off) moments for the timer started on ``day``.
 
-    Returns None when the timer does not run on that day.
+    Either moment is None when the timer does not do that part
+    ("only turn on" / "only turn off"). Returns None when the timer does not
+    run on that day.
     """
     specs = specs_for_weekday(timer, day.weekday())
     if specs is None:
         return None
     on_spec, off = specs
+    off = off or {"mode": OFF_MODE_NONE}
+    action = timer.get("action", ACTION_ON_OFF)
+
+    if action == ACTION_OFF:
+        # Only an off moment, on its own (a time or sunrise/sunset).
+        return None, resolve_moment(hass, off, day)
 
     on_moment = resolve_moment(hass, on_spec, day)
     if on_moment is None:
         return None
 
-    off = off or {"mode": OFF_MODE_NONE}
     mode = off.get("mode", OFF_MODE_NONE)
-    if mode == OFF_MODE_NONE:
+    if action == ACTION_ON or mode == OFF_MODE_NONE:
         return on_moment, None
     if mode == OFF_MODE_DURATION:
         return on_moment, on_moment + timedelta(minutes=max(1, int(off.get("duration", 1))))
@@ -126,7 +136,7 @@ def is_active(hass: HomeAssistant, timer: dict[str, Any], now: datetime) -> bool
     today = dt_util.as_local(now).date()
     for delta in range(-_SEARCH_BACK, 1):
         period = period_for_day(hass, timer, today + timedelta(days=delta))
-        if period is None or period[1] is None:
+        if period is None or period[0] is None or period[1] is None:
             continue
         if period[0] <= now < period[1]:
             return True
@@ -147,7 +157,12 @@ def describe_next(
         {"on": timer["on"], "off": timer.get("off"), "days": timer.get("days")},
         *(timer.get("overrides") or []),
     ]:
-        sub = {"on": group["on"], "off": group.get("off"), "days": group.get("days")}
+        sub = {
+            "on": group["on"],
+            "off": group.get("off"),
+            "days": group.get("days"),
+            "action": timer.get("action", ACTION_ON_OFF),
+        }
         groups.append(
             {
                 "next_on": _iso(next_moment(hass, sub, EVENT_ON, now)),

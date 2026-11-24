@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Timercard",
+        "description": "هل تريد إضافة Timercard؟ بعد ذلك أضف بطاقة \"Timercard\" إلى لوحة معلومات لإنشاء المؤقتات."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "تم إعداد Timercard بالفعل."
+    },
+    "create_entry": {
+      "default": "Timercard جاهز. حدّث المتصفح الآن (Ctrl+F5، أو Cmd+Shift+R على Mac). في تطبيق Home Assistant: الإعدادات ← التطبيق المرافق ← تصحيح الأخطاء ← إعادة تعيين ذاكرة التخزين المؤقت للواجهة. ثم عدّل لوحة معلومات واختر إضافة بطاقة وابحث عن \"Timercard\"."
+    }
+  }
+}

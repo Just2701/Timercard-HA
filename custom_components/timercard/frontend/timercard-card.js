@@ -8,7 +8,7 @@
  * and runs the timers.
  */
 
-const TC_VERSION = "1.1.0";
+const TC_VERSION = "1.2.0";
 
 /* Which domains can be scheduled and which words fit their on/off actions. */
 const TC_DOMAINS = {
@@ -58,168 +58,1254 @@ const TC_DOMAIN_ICONS = {
 };
 
 const TC_I18N = {
-  en: {
-    title: "Timers",
-    new_timer: "New timer",
-    edit_timer: "Edit timer",
-    empty: "No timers yet. Tap “New timer” to make your first one.",
-    not_loaded:
-      "The Timercard integration is not set up yet. Go to Settings → Devices & services → Add integration and choose “Timercard”.",
-    loading: "Loading timers…",
-    step_devices: "What should the timer control?",
-    search: "Search for a device…",
-    no_results: "Nothing found",
-    step_days: "On which days?",
-    step_name: "Name",
-    name_optional: "optional",
-    every_day: "Every day",
-    weekdays: "Weekdays",
-    weekend: "Weekend",
-    at_time: "Time",
-    sunrise: "Sunrise",
-    sunset: "Sunset",
-    exactly: "exactly at",
-    before: "before",
-    after: "after",
-    min: "min",
-    hour: "h",
-    off_at_time: "At a time",
-    off_after: "After a while",
-    off_none: "Don't {verb}",
-    for_how_long: "How long should it stay on?",
-    custom: "Other",
-    next_day: "next day",
-    only_on: "These devices can only be switched one way, so there is nothing to undo.",
-    set_brightness: "Set brightness",
-    set_temperature: "Set temperature",
-    set_position: "Set position",
-    save: "Save",
-    cancel: "Cancel",
-    delete: "Delete",
-    confirm_delete: "Tap again to delete",
-    try_now: "Try it now:",
-    need_device: "Choose at least one device.",
-    need_day: "Choose at least one day.",
-    need_day_group: "Choose at least one day for each set of other times.",
-    per_day: "Different times on some days",
-    per_day_hint: "For example later in the weekend",
-    main_days: "The times above are used on:",
-    other_times: "Other times",
-    other_days: "On these days:",
-    add_other: "Add other days",
-    remove: "Remove",
-    summary_title: "In short",
-    when_time: "at {time}",
-    when_sun: "at {sun}",
-    when_sun_offset: "{min} min {dir} {sun}",
-    sun_sunrise: "sunrise",
-    sun_sunset: "sunset",
-    when_duration: "after {duration}",
-    on_days: "On {days}.",
-    every_day_s: "Every day.",
-    weekdays_s: "On weekdays.",
-    weekend_s: "In the weekend.",
-    active_now: "Running now · {verb} {when}",
-    next: "Next: {verb} {day} at {time}",
-    today: "today",
-    tomorrow: "tomorrow",
-    paused: "Paused – this timer will not run",
-    and_more: "+{n}",
-    saved: "Timer saved",
-    deleted: "Timer deleted",
-    error: "Something went wrong: {msg}",
-    verbs: {
-      turn_on: "Turn on", turn_off: "Turn off", open: "Open", close: "Close",
-      unlock: "Unlock", lock: "Lock", start: "Start", dock: "Send to dock",
-      activate: "Activate", run: "Run", stop: "Stop", press: "Press",
+  "en": {
+    "title": "Timers",
+    "new_timer": "New timer",
+    "edit_timer": "Edit timer",
+    "empty": "No timers yet. Tap “New timer” to make your first one.",
+    "not_loaded": "The Timercard integration is not set up yet. Go to Settings → Devices & services → Add integration and choose “Timercard”.",
+    "loading": "Loading timers…",
+    "step_devices": "What should the timer control?",
+    "search": "Search for a device…",
+    "no_results": "Nothing found",
+    "step_action": "What should the timer do?",
+    "action_both": "{on} and {off}",
+    "action_only": "Only {verb}",
+    "action_when": "{verb} {when}",
+    "step_days": "On which days?",
+    "step_name": "Name",
+    "name_optional": "optional",
+    "every_day": "Every day",
+    "weekdays": "Weekdays",
+    "weekend": "Weekend",
+    "at_time": "Time",
+    "sunrise": "Sunrise",
+    "sunset": "Sunset",
+    "exactly_sun": "exactly at {sun}",
+    "before": "before",
+    "after": "after",
+    "offset_unit": "min {dir} {sun}",
+    "min": "min",
+    "hour": "h",
+    "off_at_time": "At a time",
+    "off_after": "After a while",
+    "for_how_long": "How long should it stay on?",
+    "custom": "Other",
+    "next_day": "next day",
+    "only_on": "These devices can only be switched one way, so there is nothing to undo.",
+    "set_brightness": "Set brightness",
+    "set_temperature": "Set temperature",
+    "set_position": "Set position",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm_delete": "Tap again to delete",
+    "try_now": "Try it now:",
+    "need_device": "Choose at least one device.",
+    "need_day": "Choose at least one day.",
+    "need_day_group": "Choose at least one day for each set of other times.",
+    "per_day": "Different times on some days",
+    "per_day_hint": "For example later in the weekend",
+    "main_days": "The times above are used on:",
+    "other_times": "Other times",
+    "other_days": "On these days:",
+    "add_other": "Add other days",
+    "remove": "Remove",
+    "summary_title": "In short",
+    "when_time": "at {time}",
+    "when_sun": "at {sun}",
+    "when_sun_offset": "{min} min {dir} {sun}",
+    "sun_sunrise": "sunrise",
+    "sun_sunset": "sunset",
+    "when_duration": "after {duration}",
+    "on_days": "On {days}.",
+    "every_day_s": "Every day.",
+    "weekdays_s": "On weekdays.",
+    "weekend_s": "In the weekend.",
+    "active_now": "Running now · {verb} {when}",
+    "next": "Next: {verb} {day} at {time}",
+    "today": "today",
+    "tomorrow": "tomorrow",
+    "paused": "Paused – this timer will not run",
+    "and_more": "+{n}",
+    "saved": "Timer saved",
+    "deleted": "Timer deleted",
+    "error": "Something went wrong: {msg}",
+    "cfg_title": "Title",
+    "cfg_entities": "Only these devices (empty = all devices)",
+    "verbs": {
+      "turn_on": "Turn on",
+      "turn_off": "Turn off",
+      "open": "Open",
+      "close": "Close",
+      "unlock": "Unlock",
+      "lock": "Lock",
+      "start": "Start",
+      "dock": "Send to dock",
+      "activate": "Activate",
+      "run": "Run",
+      "stop": "Stop",
+      "press": "Press"
     },
-    shorts: {
-      turn_on: "On", turn_off: "Off", open: "Open", close: "Close",
-      unlock: "Unlock", lock: "Lock", start: "Start", dock: "Dock",
-      activate: "Activate", run: "Run", stop: "Stop", press: "Press",
-    },
+    "shorts": {
+      "turn_on": "On",
+      "turn_off": "Off",
+      "open": "Open",
+      "close": "Close",
+      "unlock": "Unlock",
+      "lock": "Lock",
+      "start": "Start",
+      "dock": "Dock",
+      "activate": "Activate",
+      "run": "Run",
+      "stop": "Stop",
+      "press": "Press"
+    }
   },
-  nl: {
-    title: "Timers",
-    new_timer: "Nieuwe timer",
-    edit_timer: "Timer bewerken",
-    empty: "Nog geen timers. Tik op “Nieuwe timer” om je eerste te maken.",
-    not_loaded:
-      "De Timercard-integratie is nog niet ingesteld. Ga naar Instellingen → Apparaten & diensten → Integratie toevoegen en kies “Timercard”.",
-    loading: "Timers laden…",
-    step_devices: "Wat moet de timer bedienen?",
-    search: "Zoek een apparaat…",
-    no_results: "Niets gevonden",
-    step_days: "Op welke dagen?",
-    step_name: "Naam",
-    name_optional: "optioneel",
-    every_day: "Elke dag",
-    weekdays: "Werkdagen",
-    weekend: "Weekend",
-    at_time: "Tijd",
-    sunrise: "Zonsopkomst",
-    sunset: "Zonsondergang",
-    exactly: "precies bij",
-    before: "voor",
-    after: "na",
-    min: "min",
-    hour: "u",
-    off_at_time: "Op een tijd",
-    off_after: "Na een tijdje",
-    off_none: "Niet {verb}",
-    for_how_long: "Hoe lang moet het aan blijven?",
-    custom: "Anders",
-    next_day: "volgende dag",
-    only_on: "Deze apparaten kunnen maar één kant op, dus er valt niets terug te zetten.",
-    set_brightness: "Helderheid instellen",
-    set_temperature: "Temperatuur instellen",
-    set_position: "Positie instellen",
-    save: "Opslaan",
-    cancel: "Annuleren",
-    delete: "Verwijderen",
-    confirm_delete: "Tik nogmaals om te verwijderen",
-    try_now: "Nu testen:",
-    need_device: "Kies minstens één apparaat.",
-    need_day: "Kies minstens één dag.",
-    need_day_group: "Kies minstens één dag voor elke set andere tijden.",
-    per_day: "Andere tijden op sommige dagen",
-    per_day_hint: "Bijvoorbeeld later in het weekend",
-    main_days: "De tijden hierboven gelden op:",
-    other_times: "Andere tijden",
-    other_days: "Op deze dagen:",
-    add_other: "Andere dagen toevoegen",
-    remove: "Verwijderen",
-    summary_title: "Kort gezegd",
-    when_time: "om {time}",
-    when_sun: "bij {sun}",
-    when_sun_offset: "{min} min {dir} {sun}",
-    sun_sunrise: "zonsopkomst",
-    sun_sunset: "zonsondergang",
-    when_duration: "na {duration}",
-    on_days: "Op {days}.",
-    every_day_s: "Elke dag.",
-    weekdays_s: "Op werkdagen.",
-    weekend_s: "In het weekend.",
-    active_now: "Nu actief · {verb} {when}",
-    next: "Volgende: {verb} {day} om {time}",
-    today: "vandaag",
-    tomorrow: "morgen",
-    paused: "Gepauzeerd – deze timer gaat niet af",
-    and_more: "+{n}",
-    saved: "Timer opgeslagen",
-    deleted: "Timer verwijderd",
-    error: "Er ging iets mis: {msg}",
-    verbs: {
-      turn_on: "Aanzetten", turn_off: "Uitzetten", open: "Openen", close: "Sluiten",
-      unlock: "Ontgrendelen", lock: "Vergrendelen", start: "Starten", dock: "Terug naar dock",
-      activate: "Activeren", run: "Uitvoeren", stop: "Stoppen", press: "Indrukken",
+  "nl": {
+    "title": "Timers",
+    "new_timer": "Nieuwe timer",
+    "edit_timer": "Timer bewerken",
+    "empty": "Nog geen timers. Tik op “Nieuwe timer” om je eerste te maken.",
+    "not_loaded": "De Timercard-integratie is nog niet ingesteld. Ga naar Instellingen → Apparaten & diensten → Integratie toevoegen en kies “Timercard”.",
+    "loading": "Timers laden…",
+    "step_devices": "Wat moet de timer bedienen?",
+    "search": "Zoek een apparaat…",
+    "no_results": "Niets gevonden",
+    "step_action": "Wat moet de timer doen?",
+    "action_both": "{on} en {off}",
+    "action_only": "Alleen {verb}",
+    "action_when": "{verb} {when}",
+    "step_days": "Op welke dagen?",
+    "step_name": "Naam",
+    "name_optional": "optioneel",
+    "every_day": "Elke dag",
+    "weekdays": "Werkdagen",
+    "weekend": "Weekend",
+    "at_time": "Tijd",
+    "sunrise": "Zonsopkomst",
+    "sunset": "Zonsondergang",
+    "exactly_sun": "precies bij {sun}",
+    "before": "voor",
+    "after": "na",
+    "offset_unit": "min {dir} {sun}",
+    "min": "min",
+    "hour": "u",
+    "off_at_time": "Op een tijd",
+    "off_after": "Na een tijdje",
+    "for_how_long": "Hoe lang moet het aan blijven?",
+    "custom": "Anders",
+    "next_day": "volgende dag",
+    "only_on": "Deze apparaten kunnen maar één kant op, dus er valt niets terug te zetten.",
+    "set_brightness": "Helderheid instellen",
+    "set_temperature": "Temperatuur instellen",
+    "set_position": "Positie instellen",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "confirm_delete": "Tik nogmaals om te verwijderen",
+    "try_now": "Nu testen:",
+    "need_device": "Kies minstens één apparaat.",
+    "need_day": "Kies minstens één dag.",
+    "need_day_group": "Kies minstens één dag voor elke set andere tijden.",
+    "per_day": "Andere tijden op sommige dagen",
+    "per_day_hint": "Bijvoorbeeld later in het weekend",
+    "main_days": "De tijden hierboven gelden op:",
+    "other_times": "Andere tijden",
+    "other_days": "Op deze dagen:",
+    "add_other": "Andere dagen toevoegen",
+    "remove": "Verwijderen",
+    "summary_title": "Kort gezegd",
+    "when_time": "om {time}",
+    "when_sun": "bij {sun}",
+    "when_sun_offset": "{min} min {dir} {sun}",
+    "sun_sunrise": "zonsopkomst",
+    "sun_sunset": "zonsondergang",
+    "when_duration": "na {duration}",
+    "on_days": "Op {days}.",
+    "every_day_s": "Elke dag.",
+    "weekdays_s": "Op werkdagen.",
+    "weekend_s": "In het weekend.",
+    "active_now": "Nu actief · {verb} {when}",
+    "next": "Volgende: {verb} {day} om {time}",
+    "today": "vandaag",
+    "tomorrow": "morgen",
+    "paused": "Gepauzeerd – deze timer gaat niet af",
+    "and_more": "+{n}",
+    "saved": "Timer opgeslagen",
+    "deleted": "Timer verwijderd",
+    "error": "Er ging iets mis: {msg}",
+    "cfg_title": "Titel",
+    "cfg_entities": "Alleen deze apparaten (leeg = alle apparaten)",
+    "verbs": {
+      "turn_on": "Aanzetten",
+      "turn_off": "Uitzetten",
+      "open": "Openen",
+      "close": "Sluiten",
+      "unlock": "Ontgrendelen",
+      "lock": "Vergrendelen",
+      "start": "Starten",
+      "dock": "Terug naar dock",
+      "activate": "Activeren",
+      "run": "Uitvoeren",
+      "stop": "Stoppen",
+      "press": "Indrukken"
     },
-    shorts: {
-      turn_on: "Aan", turn_off: "Uit", open: "Open", close: "Dicht",
-      unlock: "Open", lock: "Op slot", start: "Start", dock: "Dock",
-      activate: "Activeer", run: "Start", stop: "Stop", press: "Druk",
-    },
+    "shorts": {
+      "turn_on": "Aan",
+      "turn_off": "Uit",
+      "open": "Open",
+      "close": "Dicht",
+      "unlock": "Open",
+      "lock": "Op slot",
+      "start": "Start",
+      "dock": "Dock",
+      "activate": "Activeer",
+      "run": "Start",
+      "stop": "Stop",
+      "press": "Druk"
+    }
   },
+  "zh": {
+    "title": "定时器",
+    "new_timer": "新建定时器",
+    "edit_timer": "编辑定时器",
+    "empty": "还没有定时器。点击“新建定时器”创建第一个。",
+    "not_loaded": "Timercard 集成尚未设置。请前往“设置 → 设备与服务 → 添加集成”，然后选择“Timercard”。",
+    "loading": "正在加载定时器…",
+    "step_devices": "定时器要控制什么？",
+    "search": "搜索设备…",
+    "no_results": "未找到",
+    "step_action": "定时器要做什么？",
+    "action_both": "{on}和{off}",
+    "action_only": "仅{verb}",
+    "action_when": "{when} {verb}",
+    "step_days": "在哪几天？",
+    "step_name": "名称",
+    "name_optional": "可选",
+    "every_day": "每天",
+    "weekdays": "工作日",
+    "weekend": "周末",
+    "at_time": "时间",
+    "sunrise": "日出",
+    "sunset": "日落",
+    "exactly_sun": "{sun}时",
+    "before": "之前",
+    "after": "之后",
+    "offset_unit": "分钟（{sun}{dir}）",
+    "min": "分钟",
+    "hour": "小时",
+    "off_at_time": "指定时间",
+    "off_after": "一段时间后",
+    "for_how_long": "要保持开启多久？",
+    "custom": "其他",
+    "next_day": "次日",
+    "only_on": "这些设备只能单向操作，因此没有需要撤销的动作。",
+    "set_brightness": "设置亮度",
+    "set_temperature": "设置温度",
+    "set_position": "设置位置",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "confirm_delete": "再次点击以删除",
+    "try_now": "立即测试：",
+    "need_device": "请至少选择一个设备。",
+    "need_day": "请至少选择一天。",
+    "need_day_group": "每组其他时间都需要至少选择一天。",
+    "per_day": "某些日子使用不同时间",
+    "per_day_hint": "例如周末晚一些",
+    "main_days": "上面的时间用于：",
+    "other_times": "其他时间",
+    "other_days": "在这些日子：",
+    "add_other": "添加其他日子",
+    "remove": "移除",
+    "summary_title": "简要说明",
+    "when_time": "{time}",
+    "when_sun": "{sun}时",
+    "when_sun_offset": "{sun}{dir} {min} 分钟",
+    "sun_sunrise": "日出",
+    "sun_sunset": "日落",
+    "when_duration": "{duration}后",
+    "on_days": "{days}。",
+    "every_day_s": "每天。",
+    "weekdays_s": "工作日。",
+    "weekend_s": "周末。",
+    "active_now": "正在运行 · {when} {verb}",
+    "next": "下次：{day} {time} {verb}",
+    "today": "今天",
+    "tomorrow": "明天",
+    "paused": "已暂停 – 此定时器不会运行",
+    "and_more": "+{n}",
+    "saved": "定时器已保存",
+    "deleted": "定时器已删除",
+    "error": "出错了：{msg}",
+    "cfg_title": "标题",
+    "cfg_entities": "仅这些设备（留空 = 全部设备）",
+    "verbs": {
+      "turn_on": "打开",
+      "turn_off": "关闭",
+      "open": "打开",
+      "close": "关闭",
+      "unlock": "解锁",
+      "lock": "上锁",
+      "start": "启动",
+      "dock": "返回充电座",
+      "activate": "激活",
+      "run": "运行",
+      "stop": "停止",
+      "press": "按下"
+    },
+    "shorts": {
+      "turn_on": "开",
+      "turn_off": "关",
+      "open": "开",
+      "close": "关",
+      "unlock": "解锁",
+      "lock": "上锁",
+      "start": "启动",
+      "dock": "回座",
+      "activate": "激活",
+      "run": "运行",
+      "stop": "停止",
+      "press": "按下"
+    }
+  },
+  "hi": {
+    "title": "टाइमर",
+    "new_timer": "नया टाइमर",
+    "edit_timer": "टाइमर बदलें",
+    "empty": "अभी कोई टाइमर नहीं है। पहला टाइमर बनाने के लिए “नया टाइमर” पर टैप करें।",
+    "not_loaded": "Timercard इंटीग्रेशन अभी सेट नहीं है। सेटिंग्स → डिवाइस और सेवाएँ → इंटीग्रेशन जोड़ें पर जाएँ और “Timercard” चुनें।",
+    "loading": "टाइमर लोड हो रहे हैं…",
+    "step_devices": "टाइमर किसे नियंत्रित करे?",
+    "search": "डिवाइस खोजें…",
+    "no_results": "कुछ नहीं मिला",
+    "step_action": "टाइमर क्या करे?",
+    "action_both": "{on} और {off}",
+    "action_only": "केवल {verb}",
+    "action_when": "{when} {verb}",
+    "step_days": "किन दिनों पर?",
+    "step_name": "नाम",
+    "name_optional": "वैकल्पिक",
+    "every_day": "हर दिन",
+    "weekdays": "कार्यदिवस",
+    "weekend": "सप्ताहांत",
+    "at_time": "समय",
+    "sunrise": "सूर्योदय",
+    "sunset": "सूर्यास्त",
+    "exactly_sun": "ठीक {sun} पर",
+    "before": "पहले",
+    "after": "बाद",
+    "offset_unit": "मिनट ({sun} से {dir})",
+    "min": "मिनट",
+    "hour": "घंटे",
+    "off_at_time": "किसी समय पर",
+    "off_after": "कुछ देर बाद",
+    "for_how_long": "कितनी देर चालू रहे?",
+    "custom": "अन्य",
+    "next_day": "अगले दिन",
+    "only_on": "ये डिवाइस केवल एक ही तरफ़ काम करते हैं, इसलिए वापस करने को कुछ नहीं है।",
+    "set_brightness": "चमक सेट करें",
+    "set_temperature": "तापमान सेट करें",
+    "set_position": "स्थिति सेट करें",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "delete": "हटाएँ",
+    "confirm_delete": "हटाने के लिए फिर से टैप करें",
+    "try_now": "अभी आज़माएँ:",
+    "need_device": "कम से कम एक डिवाइस चुनें।",
+    "need_day": "कम से कम एक दिन चुनें।",
+    "need_day_group": "अन्य समय के हर सेट के लिए कम से कम एक दिन चुनें।",
+    "per_day": "कुछ दिनों पर अलग समय",
+    "per_day_hint": "जैसे सप्ताहांत में थोड़ा देर से",
+    "main_days": "ऊपर का समय इन दिनों पर लागू है:",
+    "other_times": "अन्य समय",
+    "other_days": "इन दिनों पर:",
+    "add_other": "अन्य दिन जोड़ें",
+    "remove": "हटाएँ",
+    "summary_title": "संक्षेप में",
+    "when_time": "{time} बजे",
+    "when_sun": "{sun} पर",
+    "when_sun_offset": "{sun} से {min} मिनट {dir}",
+    "sun_sunrise": "सूर्योदय",
+    "sun_sunset": "सूर्यास्त",
+    "when_duration": "{duration} बाद",
+    "on_days": "{days} को।",
+    "every_day_s": "हर दिन।",
+    "weekdays_s": "कार्यदिवसों पर।",
+    "weekend_s": "सप्ताहांत पर।",
+    "active_now": "अभी चल रहा है · {when} {verb}",
+    "next": "अगला: {day} {time} बजे {verb}",
+    "today": "आज",
+    "tomorrow": "कल",
+    "paused": "रुका हुआ – यह टाइमर नहीं चलेगा",
+    "and_more": "+{n}",
+    "saved": "टाइमर सहेजा गया",
+    "deleted": "टाइमर हटाया गया",
+    "error": "कुछ गलत हो गया: {msg}",
+    "cfg_title": "शीर्षक",
+    "cfg_entities": "केवल ये डिवाइस (खाली = सभी डिवाइस)",
+    "verbs": {
+      "turn_on": "चालू करें",
+      "turn_off": "बंद करें",
+      "open": "खोलें",
+      "close": "बंद करें",
+      "unlock": "अनलॉक करें",
+      "lock": "लॉक करें",
+      "start": "शुरू करें",
+      "dock": "डॉक पर भेजें",
+      "activate": "सक्रिय करें",
+      "run": "चलाएँ",
+      "stop": "रोकें",
+      "press": "दबाएँ"
+    },
+    "shorts": {
+      "turn_on": "चालू",
+      "turn_off": "बंद",
+      "open": "खोलें",
+      "close": "बंद",
+      "unlock": "अनलॉक",
+      "lock": "लॉक",
+      "start": "शुरू",
+      "dock": "डॉक",
+      "activate": "सक्रिय",
+      "run": "चलाएँ",
+      "stop": "रोकें",
+      "press": "दबाएँ"
+    }
+  },
+  "es": {
+    "title": "Temporizadores",
+    "new_timer": "Nuevo temporizador",
+    "edit_timer": "Editar temporizador",
+    "empty": "Aún no hay temporizadores. Toca «Nuevo temporizador» para crear el primero.",
+    "not_loaded": "La integración Timercard aún no está configurada. Ve a Ajustes → Dispositivos y servicios → Añadir integración y elige «Timercard».",
+    "loading": "Cargando temporizadores…",
+    "step_devices": "¿Qué debe controlar el temporizador?",
+    "search": "Buscar un dispositivo…",
+    "no_results": "No se encontró nada",
+    "step_action": "¿Qué debe hacer el temporizador?",
+    "action_both": "{on} y {off}",
+    "action_only": "Solo {verb}",
+    "action_when": "{verb} {when}",
+    "step_days": "¿Qué días?",
+    "step_name": "Nombre",
+    "name_optional": "opcional",
+    "every_day": "Todos los días",
+    "weekdays": "Entre semana",
+    "weekend": "Fin de semana",
+    "at_time": "Hora",
+    "sunrise": "Amanecer",
+    "sunset": "Atardecer",
+    "exactly_sun": "justo al {sun}",
+    "before": "antes",
+    "after": "después",
+    "offset_unit": "min {dir} del {sun}",
+    "min": "min",
+    "hour": "h",
+    "off_at_time": "A una hora",
+    "off_after": "Después de un rato",
+    "for_how_long": "¿Cuánto tiempo debe quedarse encendido?",
+    "custom": "Otro",
+    "next_day": "día siguiente",
+    "only_on": "Estos dispositivos solo funcionan en un sentido, así que no hay nada que deshacer.",
+    "set_brightness": "Ajustar brillo",
+    "set_temperature": "Ajustar temperatura",
+    "set_position": "Ajustar posición",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "confirm_delete": "Toca otra vez para eliminar",
+    "try_now": "Probar ahora:",
+    "need_device": "Elige al menos un dispositivo.",
+    "need_day": "Elige al menos un día.",
+    "need_day_group": "Elige al menos un día para cada grupo de otros horarios.",
+    "per_day": "Otros horarios algunos días",
+    "per_day_hint": "Por ejemplo, más tarde el fin de semana",
+    "main_days": "Los horarios de arriba se usan:",
+    "other_times": "Otros horarios",
+    "other_days": "Estos días:",
+    "add_other": "Añadir otros días",
+    "remove": "Quitar",
+    "summary_title": "En resumen",
+    "when_time": "a las {time}",
+    "when_sun": "al {sun}",
+    "when_sun_offset": "{min} min {dir} del {sun}",
+    "sun_sunrise": "amanecer",
+    "sun_sunset": "atardecer",
+    "when_duration": "después de {duration}",
+    "on_days": "Días: {days}.",
+    "every_day_s": "Todos los días.",
+    "weekdays_s": "Entre semana.",
+    "weekend_s": "El fin de semana.",
+    "active_now": "Activo ahora · {verb} {when}",
+    "next": "Próximo: {verb} {day} a las {time}",
+    "today": "hoy",
+    "tomorrow": "mañana",
+    "paused": "En pausa: este temporizador no se ejecutará",
+    "and_more": "+{n}",
+    "saved": "Temporizador guardado",
+    "deleted": "Temporizador eliminado",
+    "error": "Algo salió mal: {msg}",
+    "cfg_title": "Título",
+    "cfg_entities": "Solo estos dispositivos (vacío = todos)",
+    "verbs": {
+      "turn_on": "Encender",
+      "turn_off": "Apagar",
+      "open": "Abrir",
+      "close": "Cerrar",
+      "unlock": "Desbloquear",
+      "lock": "Bloquear",
+      "start": "Iniciar",
+      "dock": "Volver a la base",
+      "activate": "Activar",
+      "run": "Ejecutar",
+      "stop": "Detener",
+      "press": "Pulsar"
+    },
+    "shorts": {
+      "turn_on": "Encender",
+      "turn_off": "Apagar",
+      "open": "Abrir",
+      "close": "Cerrar",
+      "unlock": "Desbloquear",
+      "lock": "Bloquear",
+      "start": "Iniciar",
+      "dock": "Base",
+      "activate": "Activar",
+      "run": "Ejecutar",
+      "stop": "Detener",
+      "press": "Pulsar"
+    }
+  },
+  "ar": {
+    "title": "المؤقتات",
+    "new_timer": "مؤقت جديد",
+    "edit_timer": "تعديل المؤقت",
+    "empty": "لا توجد مؤقتات بعد. اضغط على «مؤقت جديد» لإنشاء أول مؤقت.",
+    "not_loaded": "لم يتم إعداد تكامل Timercard بعد. انتقل إلى الإعدادات ← الأجهزة والخدمات ← إضافة تكامل واختر «Timercard».",
+    "loading": "جارٍ تحميل المؤقتات…",
+    "step_devices": "ما الذي يتحكم فيه المؤقت؟",
+    "search": "ابحث عن جهاز…",
+    "no_results": "لم يتم العثور على شيء",
+    "step_action": "ماذا يفعل المؤقت؟",
+    "action_both": "{on} و{off}",
+    "action_only": "{verb} فقط",
+    "action_when": "{verb} {when}",
+    "step_days": "في أي أيام؟",
+    "step_name": "الاسم",
+    "name_optional": "اختياري",
+    "every_day": "كل يوم",
+    "weekdays": "أيام العمل",
+    "weekend": "عطلة نهاية الأسبوع",
+    "at_time": "وقت",
+    "sunrise": "الشروق",
+    "sunset": "الغروب",
+    "exactly_sun": "تمامًا عند {sun}",
+    "before": "قبل",
+    "after": "بعد",
+    "offset_unit": "دقيقة {dir} {sun}",
+    "min": "دقيقة",
+    "hour": "ساعة",
+    "off_at_time": "في وقت محدد",
+    "off_after": "بعد مدة",
+    "for_how_long": "كم من الوقت يبقى قيد التشغيل؟",
+    "custom": "أخرى",
+    "next_day": "اليوم التالي",
+    "only_on": "هذه الأجهزة تعمل في اتجاه واحد فقط، لذلك لا يوجد ما يمكن التراجع عنه.",
+    "set_brightness": "ضبط السطوع",
+    "set_temperature": "ضبط درجة الحرارة",
+    "set_position": "ضبط الموضع",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "confirm_delete": "اضغط مرة أخرى للحذف",
+    "try_now": "جرّب الآن:",
+    "need_device": "اختر جهازًا واحدًا على الأقل.",
+    "need_day": "اختر يومًا واحدًا على الأقل.",
+    "need_day_group": "اختر يومًا واحدًا على الأقل لكل مجموعة من الأوقات الأخرى.",
+    "per_day": "أوقات مختلفة في بعض الأيام",
+    "per_day_hint": "مثلًا في وقت لاحق في عطلة نهاية الأسبوع",
+    "main_days": "الأوقات أعلاه تُستخدم في:",
+    "other_times": "أوقات أخرى",
+    "other_days": "في هذه الأيام:",
+    "add_other": "إضافة أيام أخرى",
+    "remove": "إزالة",
+    "summary_title": "باختصار",
+    "when_time": "الساعة {time}",
+    "when_sun": "عند {sun}",
+    "when_sun_offset": "{min} دقيقة {dir} {sun}",
+    "sun_sunrise": "الشروق",
+    "sun_sunset": "الغروب",
+    "when_duration": "بعد {duration}",
+    "on_days": "الأيام: {days}.",
+    "every_day_s": "كل يوم.",
+    "weekdays_s": "في أيام العمل.",
+    "weekend_s": "في عطلة نهاية الأسبوع.",
+    "active_now": "يعمل الآن · {verb} {when}",
+    "next": "التالي: {verb} {day} الساعة {time}",
+    "today": "اليوم",
+    "tomorrow": "غدًا",
+    "paused": "متوقف مؤقتًا – لن يعمل هذا المؤقت",
+    "and_more": "+{n}",
+    "saved": "تم حفظ المؤقت",
+    "deleted": "تم حذف المؤقت",
+    "error": "حدث خطأ ما: {msg}",
+    "cfg_title": "العنوان",
+    "cfg_entities": "هذه الأجهزة فقط (فارغ = كل الأجهزة)",
+    "verbs": {
+      "turn_on": "تشغيل",
+      "turn_off": "إيقاف",
+      "open": "فتح",
+      "close": "إغلاق",
+      "unlock": "إلغاء القفل",
+      "lock": "قفل",
+      "start": "بدء",
+      "dock": "العودة إلى القاعدة",
+      "activate": "تفعيل",
+      "run": "تنفيذ",
+      "stop": "إيقاف",
+      "press": "ضغط"
+    },
+    "shorts": {
+      "turn_on": "تشغيل",
+      "turn_off": "إيقاف",
+      "open": "فتح",
+      "close": "إغلاق",
+      "unlock": "فتح القفل",
+      "lock": "قفل",
+      "start": "بدء",
+      "dock": "القاعدة",
+      "activate": "تفعيل",
+      "run": "تنفيذ",
+      "stop": "إيقاف",
+      "press": "ضغط"
+    }
+  },
+  "fr": {
+    "title": "Minuteurs",
+    "new_timer": "Nouveau minuteur",
+    "edit_timer": "Modifier le minuteur",
+    "empty": "Aucun minuteur pour l’instant. Touchez « Nouveau minuteur » pour créer le premier.",
+    "not_loaded": "L’intégration Timercard n’est pas encore configurée. Allez dans Paramètres → Appareils et services → Ajouter une intégration et choisissez « Timercard ».",
+    "loading": "Chargement des minuteurs…",
+    "step_devices": "Que doit commander le minuteur ?",
+    "search": "Rechercher un appareil…",
+    "no_results": "Aucun résultat",
+    "step_action": "Que doit faire le minuteur ?",
+    "action_both": "{on} et {off}",
+    "action_only": "Seulement {verb}",
+    "action_when": "{verb} {when}",
+    "step_days": "Quels jours ?",
+    "step_name": "Nom",
+    "name_optional": "facultatif",
+    "every_day": "Tous les jours",
+    "weekdays": "En semaine",
+    "weekend": "Week-end",
+    "at_time": "Heure",
+    "sunrise": "Lever du soleil",
+    "sunset": "Coucher du soleil",
+    "exactly_sun": "pile au {sun}",
+    "before": "avant",
+    "after": "après",
+    "offset_unit": "min {dir} le {sun}",
+    "min": "min",
+    "hour": "h",
+    "off_at_time": "À une heure",
+    "off_after": "Après un moment",
+    "for_how_long": "Combien de temps doit-il rester allumé ?",
+    "custom": "Autre",
+    "next_day": "le lendemain",
+    "only_on": "Ces appareils ne fonctionnent que dans un sens : il n’y a rien à annuler.",
+    "set_brightness": "Régler la luminosité",
+    "set_temperature": "Régler la température",
+    "set_position": "Régler la position",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "confirm_delete": "Touchez encore pour supprimer",
+    "try_now": "Tester maintenant :",
+    "need_device": "Choisissez au moins un appareil.",
+    "need_day": "Choisissez au moins un jour.",
+    "need_day_group": "Choisissez au moins un jour pour chaque groupe d’autres horaires.",
+    "per_day": "Autres horaires certains jours",
+    "per_day_hint": "Par exemple plus tard le week-end",
+    "main_days": "Les horaires ci-dessus s’appliquent :",
+    "other_times": "Autres horaires",
+    "other_days": "Ces jours-là :",
+    "add_other": "Ajouter d’autres jours",
+    "remove": "Retirer",
+    "summary_title": "En bref",
+    "when_time": "à {time}",
+    "when_sun": "au {sun}",
+    "when_sun_offset": "{min} min {dir} le {sun}",
+    "sun_sunrise": "lever du soleil",
+    "sun_sunset": "coucher du soleil",
+    "when_duration": "après {duration}",
+    "on_days": "Jours : {days}.",
+    "every_day_s": "Tous les jours.",
+    "weekdays_s": "En semaine.",
+    "weekend_s": "Le week-end.",
+    "active_now": "En cours · {verb} {when}",
+    "next": "Prochain : {verb} {day} à {time}",
+    "today": "aujourd’hui",
+    "tomorrow": "demain",
+    "paused": "En pause – ce minuteur ne se déclenchera pas",
+    "and_more": "+{n}",
+    "saved": "Minuteur enregistré",
+    "deleted": "Minuteur supprimé",
+    "error": "Une erreur est survenue : {msg}",
+    "cfg_title": "Titre",
+    "cfg_entities": "Seulement ces appareils (vide = tous)",
+    "verbs": {
+      "turn_on": "Allumer",
+      "turn_off": "Éteindre",
+      "open": "Ouvrir",
+      "close": "Fermer",
+      "unlock": "Déverrouiller",
+      "lock": "Verrouiller",
+      "start": "Démarrer",
+      "dock": "Retour à la base",
+      "activate": "Activer",
+      "run": "Lancer",
+      "stop": "Arrêter",
+      "press": "Appuyer"
+    },
+    "shorts": {
+      "turn_on": "Allumer",
+      "turn_off": "Éteindre",
+      "open": "Ouvrir",
+      "close": "Fermer",
+      "unlock": "Déverrouiller",
+      "lock": "Verrouiller",
+      "start": "Démarrer",
+      "dock": "Base",
+      "activate": "Activer",
+      "run": "Lancer",
+      "stop": "Arrêter",
+      "press": "Appuyer"
+    }
+  },
+  "bn": {
+    "title": "টাইমার",
+    "new_timer": "নতুন টাইমার",
+    "edit_timer": "টাইমার সম্পাদনা",
+    "empty": "এখনও কোনো টাইমার নেই। প্রথমটি বানাতে “নতুন টাইমার”-এ ট্যাপ করুন।",
+    "not_loaded": "Timercard ইন্টিগ্রেশন এখনও সেট আপ করা হয়নি। সেটিংস → ডিভাইস ও পরিষেবা → ইন্টিগ্রেশন যোগ করুন-এ গিয়ে “Timercard” বেছে নিন।",
+    "loading": "টাইমার লোড হচ্ছে…",
+    "step_devices": "টাইমার কী নিয়ন্ত্রণ করবে?",
+    "search": "ডিভাইস খুঁজুন…",
+    "no_results": "কিছু পাওয়া যায়নি",
+    "step_action": "টাইমার কী করবে?",
+    "action_both": "{on} ও {off}",
+    "action_only": "শুধু {verb}",
+    "action_when": "{when} {verb}",
+    "step_days": "কোন কোন দিন?",
+    "step_name": "নাম",
+    "name_optional": "ঐচ্ছিক",
+    "every_day": "প্রতিদিন",
+    "weekdays": "কর্মদিবস",
+    "weekend": "সপ্তাহান্ত",
+    "at_time": "সময়",
+    "sunrise": "সূর্যোদয়",
+    "sunset": "সূর্যাস্ত",
+    "exactly_sun": "ঠিক {sun}-এ",
+    "before": "আগে",
+    "after": "পরে",
+    "offset_unit": "মিনিট ({sun}-এর {dir})",
+    "min": "মিনিট",
+    "hour": "ঘণ্টা",
+    "off_at_time": "নির্দিষ্ট সময়ে",
+    "off_after": "কিছুক্ষণ পরে",
+    "for_how_long": "কতক্ষণ চালু থাকবে?",
+    "custom": "অন্য",
+    "next_day": "পরের দিন",
+    "only_on": "এই ডিভাইসগুলো শুধু এক দিকেই কাজ করে, তাই ফেরানোর কিছু নেই।",
+    "set_brightness": "উজ্জ্বলতা সেট করুন",
+    "set_temperature": "তাপমাত্রা সেট করুন",
+    "set_position": "অবস্থান সেট করুন",
+    "save": "সংরক্ষণ",
+    "cancel": "বাতিল",
+    "delete": "মুছুন",
+    "confirm_delete": "মুছতে আবার ট্যাপ করুন",
+    "try_now": "এখনই চেষ্টা করুন:",
+    "need_device": "অন্তত একটি ডিভাইস বেছে নিন।",
+    "need_day": "অন্তত একটি দিন বেছে নিন।",
+    "need_day_group": "অন্য সময়ের প্রতিটি সেটের জন্য অন্তত একটি দিন বেছে নিন।",
+    "per_day": "কিছু দিনে ভিন্ন সময়",
+    "per_day_hint": "যেমন সপ্তাহান্তে একটু দেরিতে",
+    "main_days": "উপরের সময় প্রযোজ্য:",
+    "other_times": "অন্য সময়",
+    "other_days": "এই দিনগুলোতে:",
+    "add_other": "অন্য দিন যোগ করুন",
+    "remove": "সরান",
+    "summary_title": "সংক্ষেপে",
+    "when_time": "{time}-এ",
+    "when_sun": "{sun}-এ",
+    "when_sun_offset": "{sun}-এর {min} মিনিট {dir}",
+    "sun_sunrise": "সূর্যোদয়",
+    "sun_sunset": "সূর্যাস্ত",
+    "when_duration": "{duration} পরে",
+    "on_days": "{days}।",
+    "every_day_s": "প্রতিদিন।",
+    "weekdays_s": "কর্মদিবসে।",
+    "weekend_s": "সপ্তাহান্তে।",
+    "active_now": "এখন চলছে · {when} {verb}",
+    "next": "পরবর্তী: {day} {time}-এ {verb}",
+    "today": "আজ",
+    "tomorrow": "আগামীকাল",
+    "paused": "বিরতিতে – এই টাইমার চলবে না",
+    "and_more": "+{n}",
+    "saved": "টাইমার সংরক্ষিত হয়েছে",
+    "deleted": "টাইমার মুছে ফেলা হয়েছে",
+    "error": "কিছু ভুল হয়েছে: {msg}",
+    "cfg_title": "শিরোনাম",
+    "cfg_entities": "শুধু এই ডিভাইসগুলো (খালি = সব)",
+    "verbs": {
+      "turn_on": "চালু করুন",
+      "turn_off": "বন্ধ করুন",
+      "open": "খুলুন",
+      "close": "বন্ধ করুন",
+      "unlock": "আনলক করুন",
+      "lock": "লক করুন",
+      "start": "শুরু করুন",
+      "dock": "ডকে পাঠান",
+      "activate": "সক্রিয় করুন",
+      "run": "চালান",
+      "stop": "থামান",
+      "press": "চাপুন"
+    },
+    "shorts": {
+      "turn_on": "চালু",
+      "turn_off": "বন্ধ",
+      "open": "খোলা",
+      "close": "বন্ধ",
+      "unlock": "আনলক",
+      "lock": "লক",
+      "start": "শুরু",
+      "dock": "ডক",
+      "activate": "সক্রিয়",
+      "run": "চালান",
+      "stop": "থামান",
+      "press": "চাপুন"
+    }
+  },
+  "pt": {
+    "title": "Temporizadores",
+    "new_timer": "Novo temporizador",
+    "edit_timer": "Editar temporizador",
+    "empty": "Ainda não há temporizadores. Toque em “Novo temporizador” para criar o primeiro.",
+    "not_loaded": "A integração Timercard ainda não está configurada. Vá a Configurações → Dispositivos e serviços → Adicionar integração e escolha “Timercard”.",
+    "loading": "Carregando temporizadores…",
+    "step_devices": "O que o temporizador deve controlar?",
+    "search": "Pesquisar um dispositivo…",
+    "no_results": "Nada encontrado",
+    "step_action": "O que o temporizador deve fazer?",
+    "action_both": "{on} e {off}",
+    "action_only": "Só {verb}",
+    "action_when": "{verb} {when}",
+    "step_days": "Em quais dias?",
+    "step_name": "Nome",
+    "name_optional": "opcional",
+    "every_day": "Todos os dias",
+    "weekdays": "Dias úteis",
+    "weekend": "Fim de semana",
+    "at_time": "Hora",
+    "sunrise": "Nascer do sol",
+    "sunset": "Pôr do sol",
+    "exactly_sun": "exatamente no {sun}",
+    "before": "antes",
+    "after": "depois",
+    "offset_unit": "min {dir} do {sun}",
+    "min": "min",
+    "hour": "h",
+    "off_at_time": "Num horário",
+    "off_after": "Depois de um tempo",
+    "for_how_long": "Por quanto tempo deve ficar ligado?",
+    "custom": "Outro",
+    "next_day": "dia seguinte",
+    "only_on": "Estes dispositivos só funcionam num sentido, por isso não há nada para desfazer.",
+    "set_brightness": "Definir brilho",
+    "set_temperature": "Definir temperatura",
+    "set_position": "Definir posição",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "confirm_delete": "Toque de novo para excluir",
+    "try_now": "Testar agora:",
+    "need_device": "Escolha pelo menos um dispositivo.",
+    "need_day": "Escolha pelo menos um dia.",
+    "need_day_group": "Escolha pelo menos um dia para cada grupo de outros horários.",
+    "per_day": "Horários diferentes em alguns dias",
+    "per_day_hint": "Por exemplo, mais tarde no fim de semana",
+    "main_days": "Os horários acima valem em:",
+    "other_times": "Outros horários",
+    "other_days": "Nestes dias:",
+    "add_other": "Adicionar outros dias",
+    "remove": "Remover",
+    "summary_title": "Resumindo",
+    "when_time": "às {time}",
+    "when_sun": "no {sun}",
+    "when_sun_offset": "{min} min {dir} do {sun}",
+    "sun_sunrise": "nascer do sol",
+    "sun_sunset": "pôr do sol",
+    "when_duration": "depois de {duration}",
+    "on_days": "Dias: {days}.",
+    "every_day_s": "Todos os dias.",
+    "weekdays_s": "Nos dias úteis.",
+    "weekend_s": "No fim de semana.",
+    "active_now": "Ativo agora · {verb} {when}",
+    "next": "Próximo: {verb} {day} às {time}",
+    "today": "hoje",
+    "tomorrow": "amanhã",
+    "paused": "Pausado – este temporizador não vai funcionar",
+    "and_more": "+{n}",
+    "saved": "Temporizador salvo",
+    "deleted": "Temporizador excluído",
+    "error": "Algo deu errado: {msg}",
+    "cfg_title": "Título",
+    "cfg_entities": "Só estes dispositivos (vazio = todos)",
+    "verbs": {
+      "turn_on": "Ligar",
+      "turn_off": "Desligar",
+      "open": "Abrir",
+      "close": "Fechar",
+      "unlock": "Desbloquear",
+      "lock": "Bloquear",
+      "start": "Iniciar",
+      "dock": "Voltar à base",
+      "activate": "Ativar",
+      "run": "Executar",
+      "stop": "Parar",
+      "press": "Pressionar"
+    },
+    "shorts": {
+      "turn_on": "Ligar",
+      "turn_off": "Desligar",
+      "open": "Abrir",
+      "close": "Fechar",
+      "unlock": "Desbloquear",
+      "lock": "Bloquear",
+      "start": "Iniciar",
+      "dock": "Base",
+      "activate": "Ativar",
+      "run": "Executar",
+      "stop": "Parar",
+      "press": "Pressionar"
+    }
+  },
+  "ru": {
+    "title": "Таймеры",
+    "new_timer": "Новый таймер",
+    "edit_timer": "Изменить таймер",
+    "empty": "Таймеров пока нет. Нажмите «Новый таймер», чтобы создать первый.",
+    "not_loaded": "Интеграция Timercard ещё не настроена. Откройте Настройки → Устройства и службы → Добавить интеграцию и выберите «Timercard».",
+    "loading": "Загрузка таймеров…",
+    "step_devices": "Чем должен управлять таймер?",
+    "search": "Найти устройство…",
+    "no_results": "Ничего не найдено",
+    "step_action": "Что должен делать таймер?",
+    "action_both": "{on} и {off}",
+    "action_only": "Только {verb}",
+    "action_when": "{verb} {when}",
+    "step_days": "В какие дни?",
+    "step_name": "Название",
+    "name_optional": "необязательно",
+    "every_day": "Каждый день",
+    "weekdays": "Будни",
+    "weekend": "Выходные",
+    "at_time": "Время",
+    "sunrise": "Восход",
+    "sunset": "Закат",
+    "exactly_sun": "ровно в момент {sun}",
+    "before": "до",
+    "after": "после",
+    "offset_unit": "мин {dir} {sun}",
+    "min": "мин",
+    "hour": "ч",
+    "off_at_time": "В заданное время",
+    "off_after": "Через некоторое время",
+    "for_how_long": "Сколько времени оставить включённым?",
+    "custom": "Другое",
+    "next_day": "на следующий день",
+    "only_on": "Эти устройства работают только в одну сторону, отменять нечего.",
+    "set_brightness": "Задать яркость",
+    "set_temperature": "Задать температуру",
+    "set_position": "Задать положение",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "confirm_delete": "Нажмите ещё раз, чтобы удалить",
+    "try_now": "Проверить сейчас:",
+    "need_device": "Выберите хотя бы одно устройство.",
+    "need_day": "Выберите хотя бы один день.",
+    "need_day_group": "Выберите хотя бы один день для каждого набора другого времени.",
+    "per_day": "Другое время в некоторые дни",
+    "per_day_hint": "Например, позже в выходные",
+    "main_days": "Время выше действует в дни:",
+    "other_times": "Другое время",
+    "other_days": "В эти дни:",
+    "add_other": "Добавить другие дни",
+    "remove": "Убрать",
+    "summary_title": "Кратко",
+    "when_time": "в {time}",
+    "when_sun": "в момент {sun}",
+    "when_sun_offset": "{min} мин {dir} {sun}",
+    "sun_sunrise": "восхода",
+    "sun_sunset": "заката",
+    "when_duration": "через {duration}",
+    "on_days": "Дни: {days}.",
+    "every_day_s": "Каждый день.",
+    "weekdays_s": "По будням.",
+    "weekend_s": "По выходным.",
+    "active_now": "Работает сейчас · {verb} {when}",
+    "next": "Далее: {verb} {day} в {time}",
+    "today": "сегодня",
+    "tomorrow": "завтра",
+    "paused": "На паузе — этот таймер не сработает",
+    "and_more": "+{n}",
+    "saved": "Таймер сохранён",
+    "deleted": "Таймер удалён",
+    "error": "Что-то пошло не так: {msg}",
+    "cfg_title": "Заголовок",
+    "cfg_entities": "Только эти устройства (пусто = все)",
+    "verbs": {
+      "turn_on": "Включить",
+      "turn_off": "Выключить",
+      "open": "Открыть",
+      "close": "Закрыть",
+      "unlock": "Разблокировать",
+      "lock": "Заблокировать",
+      "start": "Запустить",
+      "dock": "Вернуть на базу",
+      "activate": "Активировать",
+      "run": "Запустить",
+      "stop": "Остановить",
+      "press": "Нажать"
+    },
+    "shorts": {
+      "turn_on": "Вкл",
+      "turn_off": "Выкл",
+      "open": "Открыть",
+      "close": "Закрыть",
+      "unlock": "Разблок.",
+      "lock": "Заблок.",
+      "start": "Старт",
+      "dock": "База",
+      "activate": "Активировать",
+      "run": "Запуск",
+      "stop": "Стоп",
+      "press": "Нажать"
+    }
+  },
+  "ur": {
+    "title": "ٹائمر",
+    "new_timer": "نیا ٹائمر",
+    "edit_timer": "ٹائمر میں ترمیم",
+    "empty": "ابھی کوئی ٹائمر نہیں ہے۔ پہلا ٹائمر بنانے کے لیے “نیا ٹائمر” پر ٹیپ کریں۔",
+    "not_loaded": "Timercard انٹیگریشن ابھی سیٹ اپ نہیں ہوئی۔ سیٹنگز ← ڈیوائسز اور سروسز ← انٹیگریشن شامل کریں پر جائیں اور “Timercard” منتخب کریں۔",
+    "loading": "ٹائمر لوڈ ہو رہے ہیں…",
+    "step_devices": "ٹائمر کس کو کنٹرول کرے؟",
+    "search": "ڈیوائس تلاش کریں…",
+    "no_results": "کچھ نہیں ملا",
+    "step_action": "ٹائمر کیا کرے؟",
+    "action_both": "{on} اور {off}",
+    "action_only": "صرف {verb}",
+    "action_when": "{when} {verb}",
+    "step_days": "کن دنوں میں؟",
+    "step_name": "نام",
+    "name_optional": "اختیاری",
+    "every_day": "ہر روز",
+    "weekdays": "کام کے دن",
+    "weekend": "ویک اینڈ",
+    "at_time": "وقت",
+    "sunrise": "طلوعِ آفتاب",
+    "sunset": "غروبِ آفتاب",
+    "exactly_sun": "عین {sun} پر",
+    "before": "پہلے",
+    "after": "بعد",
+    "offset_unit": "منٹ ({sun} سے {dir})",
+    "min": "منٹ",
+    "hour": "گھنٹے",
+    "off_at_time": "کسی وقت پر",
+    "off_after": "کچھ دیر بعد",
+    "for_how_long": "کتنی دیر آن رہے؟",
+    "custom": "دیگر",
+    "next_day": "اگلے دن",
+    "only_on": "یہ ڈیوائسز صرف ایک طرف کام کرتی ہیں، اس لیے واپس کرنے کو کچھ نہیں۔",
+    "set_brightness": "روشنی سیٹ کریں",
+    "set_temperature": "درجہ حرارت سیٹ کریں",
+    "set_position": "پوزیشن سیٹ کریں",
+    "save": "محفوظ کریں",
+    "cancel": "منسوخ",
+    "delete": "حذف کریں",
+    "confirm_delete": "حذف کرنے کے لیے دوبارہ ٹیپ کریں",
+    "try_now": "ابھی آزمائیں:",
+    "need_device": "کم از کم ایک ڈیوائس منتخب کریں۔",
+    "need_day": "کم از کم ایک دن منتخب کریں۔",
+    "need_day_group": "دیگر اوقات کے ہر سیٹ کے لیے کم از کم ایک دن منتخب کریں۔",
+    "per_day": "کچھ دنوں میں مختلف اوقات",
+    "per_day_hint": "مثلاً ویک اینڈ پر ذرا دیر سے",
+    "main_days": "اوپر والے اوقات ان دنوں میں:",
+    "other_times": "دیگر اوقات",
+    "other_days": "ان دنوں میں:",
+    "add_other": "دیگر دن شامل کریں",
+    "remove": "ہٹائیں",
+    "summary_title": "مختصراً",
+    "when_time": "{time} بجے",
+    "when_sun": "{sun} پر",
+    "when_sun_offset": "{sun} سے {min} منٹ {dir}",
+    "sun_sunrise": "طلوعِ آفتاب",
+    "sun_sunset": "غروبِ آفتاب",
+    "when_duration": "{duration} بعد",
+    "on_days": "{days} کو۔",
+    "every_day_s": "ہر روز۔",
+    "weekdays_s": "کام کے دنوں میں۔",
+    "weekend_s": "ویک اینڈ پر۔",
+    "active_now": "ابھی چل رہا ہے · {when} {verb}",
+    "next": "اگلا: {day} {time} بجے {verb}",
+    "today": "آج",
+    "tomorrow": "کل",
+    "paused": "موقوف – یہ ٹائمر نہیں چلے گا",
+    "and_more": "+{n}",
+    "saved": "ٹائمر محفوظ ہو گیا",
+    "deleted": "ٹائمر حذف ہو گیا",
+    "error": "کچھ غلط ہو گیا: {msg}",
+    "cfg_title": "عنوان",
+    "cfg_entities": "صرف یہ ڈیوائسز (خالی = سب)",
+    "verbs": {
+      "turn_on": "آن کریں",
+      "turn_off": "بند کریں",
+      "open": "کھولیں",
+      "close": "بند کریں",
+      "unlock": "ان لاک کریں",
+      "lock": "لاک کریں",
+      "start": "شروع کریں",
+      "dock": "ڈاک پر بھیجیں",
+      "activate": "فعال کریں",
+      "run": "چلائیں",
+      "stop": "روکیں",
+      "press": "دبائیں"
+    },
+    "shorts": {
+      "turn_on": "آن",
+      "turn_off": "بند",
+      "open": "کھولیں",
+      "close": "بند",
+      "unlock": "ان لاک",
+      "lock": "لاک",
+      "start": "شروع",
+      "dock": "ڈاک",
+      "activate": "فعال",
+      "run": "چلائیں",
+      "stop": "روکیں",
+      "press": "دبائیں"
+    }
+  },
+  "id": {
+    "title": "Timer",
+    "new_timer": "Timer baru",
+    "edit_timer": "Ubah timer",
+    "empty": "Belum ada timer. Ketuk “Timer baru” untuk membuat yang pertama.",
+    "not_loaded": "Integrasi Timercard belum disiapkan. Buka Pengaturan → Perangkat & layanan → Tambahkan integrasi lalu pilih “Timercard”.",
+    "loading": "Memuat timer…",
+    "step_devices": "Apa yang harus dikendalikan timer?",
+    "search": "Cari perangkat…",
+    "no_results": "Tidak ditemukan",
+    "step_action": "Apa yang harus dilakukan timer?",
+    "action_both": "{on} dan {off}",
+    "action_only": "Hanya {verb}",
+    "action_when": "{verb} {when}",
+    "step_days": "Pada hari apa?",
+    "step_name": "Nama",
+    "name_optional": "opsional",
+    "every_day": "Setiap hari",
+    "weekdays": "Hari kerja",
+    "weekend": "Akhir pekan",
+    "at_time": "Waktu",
+    "sunrise": "Matahari terbit",
+    "sunset": "Matahari terbenam",
+    "exactly_sun": "tepat saat {sun}",
+    "before": "sebelum",
+    "after": "setelah",
+    "offset_unit": "menit {dir} {sun}",
+    "min": "mnt",
+    "hour": "j",
+    "off_at_time": "Pada waktu tertentu",
+    "off_after": "Setelah beberapa saat",
+    "for_how_long": "Berapa lama harus tetap menyala?",
+    "custom": "Lainnya",
+    "next_day": "hari berikutnya",
+    "only_on": "Perangkat ini hanya bisa satu arah, jadi tidak ada yang perlu dibatalkan.",
+    "set_brightness": "Atur kecerahan",
+    "set_temperature": "Atur suhu",
+    "set_position": "Atur posisi",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "confirm_delete": "Ketuk lagi untuk menghapus",
+    "try_now": "Coba sekarang:",
+    "need_device": "Pilih minimal satu perangkat.",
+    "need_day": "Pilih minimal satu hari.",
+    "need_day_group": "Pilih minimal satu hari untuk setiap set waktu lain.",
+    "per_day": "Waktu berbeda di beberapa hari",
+    "per_day_hint": "Misalnya lebih larut di akhir pekan",
+    "main_days": "Waktu di atas berlaku pada:",
+    "other_times": "Waktu lain",
+    "other_days": "Pada hari-hari ini:",
+    "add_other": "Tambah hari lain",
+    "remove": "Hapus",
+    "summary_title": "Singkatnya",
+    "when_time": "pukul {time}",
+    "when_sun": "saat {sun}",
+    "when_sun_offset": "{min} menit {dir} {sun}",
+    "sun_sunrise": "matahari terbit",
+    "sun_sunset": "matahari terbenam",
+    "when_duration": "setelah {duration}",
+    "on_days": "Pada {days}.",
+    "every_day_s": "Setiap hari.",
+    "weekdays_s": "Pada hari kerja.",
+    "weekend_s": "Pada akhir pekan.",
+    "active_now": "Sedang berjalan · {verb} {when}",
+    "next": "Berikutnya: {verb} {day} pukul {time}",
+    "today": "hari ini",
+    "tomorrow": "besok",
+    "paused": "Dijeda – timer ini tidak akan berjalan",
+    "and_more": "+{n}",
+    "saved": "Timer disimpan",
+    "deleted": "Timer dihapus",
+    "error": "Terjadi kesalahan: {msg}",
+    "cfg_title": "Judul",
+    "cfg_entities": "Hanya perangkat ini (kosong = semua)",
+    "verbs": {
+      "turn_on": "Nyalakan",
+      "turn_off": "Matikan",
+      "open": "Buka",
+      "close": "Tutup",
+      "unlock": "Buka kunci",
+      "lock": "Kunci",
+      "start": "Mulai",
+      "dock": "Kembali ke dok",
+      "activate": "Aktifkan",
+      "run": "Jalankan",
+      "stop": "Hentikan",
+      "press": "Tekan"
+    },
+    "shorts": {
+      "turn_on": "Nyala",
+      "turn_off": "Mati",
+      "open": "Buka",
+      "close": "Tutup",
+      "unlock": "Buka kunci",
+      "lock": "Kunci",
+      "start": "Mulai",
+      "dock": "Dok",
+      "activate": "Aktifkan",
+      "run": "Jalankan",
+      "stop": "Henti",
+      "press": "Tekan"
+    }
+  }
 };
 
 const TC_DURATION_PRESETS = [5, 10, 15, 30, 60, 120, 240];
@@ -370,6 +1456,25 @@ class TimercardCard extends HTMLElement {
     return (this._hass?.locale?.language || this._hass?.language || "en");
   }
 
+  /** Locale for Intl, always with Latin digits so times match the input fields. */
+  get _intlLang() {
+    const tag = `${this._lang}-u-nu-latn`;
+    try {
+      Intl.DateTimeFormat.supportedLocalesOf(tag);
+      return tag;
+    } catch (e) {
+      return "en";
+    }
+  }
+
+  get _rtl() {
+    return ["ar", "ur", "he", "fa"].includes(this._lang.split("-")[0].toLowerCase());
+  }
+
+  get _dir() {
+    return this._rtl ? "rtl" : "ltr";
+  }
+
   get _strings() {
     const base = this._lang.split("-")[0].toLowerCase();
     return TC_I18N[base] || TC_I18N.en;
@@ -386,6 +1491,13 @@ class TimercardCard extends HTMLElement {
   _verb(verbKey, short = false) {
     const table = short ? this._strings.shorts : this._strings.verbs;
     return table[verbKey] || TC_I18N.en[short ? "shorts" : "verbs"][verbKey] || verbKey;
+  }
+
+  /** "on_off", "on" (only turn on) or "off" (only turn off). */
+  _actionOf(timer) {
+    if (!this._verbsFor(timer.entities).hasOff) return "on";
+    if (timer.action) return timer.action;
+    return timer.off?.mode === "none" ? "on" : "on_off";
   }
 
   /** The two verbs that fit the chosen devices, e.g. ["open", "close"]. */
@@ -408,7 +1520,7 @@ class TimercardCard extends HTMLElement {
     if (fmt === "12") return true;
     if (fmt === "24") return false;
     try {
-      const opts = new Intl.DateTimeFormat(fmt === "system" ? undefined : this._lang, {
+      const opts = new Intl.DateTimeFormat(fmt === "system" ? undefined : this._intlLang, {
         hour: "numeric",
       }).resolvedOptions();
       return opts.hour12 ?? (opts.hourCycle === "h12" || opts.hourCycle === "h11");
@@ -421,9 +1533,28 @@ class TimercardCard extends HTMLElement {
   _fmtHHMM(hhmm) {
     const mins = tcMinutes(hhmm);
     if (!this._hour12) return tcHHMM(mins);
-    const h = Math.floor(mins / 60);
-    const m = String(mins % 60).padStart(2, "0");
-    return `${((h + 11) % 12) + 1}:${m} ${h < 12 ? "AM" : "PM"}`;
+    try {
+      return new Intl.DateTimeFormat(this._intlLang, {
+        hour: "numeric", minute: "2-digit", hour12: true, timeZone: "UTC",
+      }).format(new Date(Date.UTC(2000, 0, 1, Math.floor(mins / 60), mins % 60)));
+    } catch (e) {
+      const h = Math.floor(mins / 60);
+      return `${((h + 11) % 12) + 1}:${String(mins % 60).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+    }
+  }
+
+  /** Localised AM / PM labels. */
+  _dayPeriods() {
+    const label = (h) => {
+      try {
+        const parts = new Intl.DateTimeFormat(this._intlLang, { hour: "numeric", hour12: true, timeZone: "UTC" })
+          .formatToParts(new Date(Date.UTC(2000, 0, 1, h)));
+        return parts.find((x) => x.type === "dayPeriod")?.value;
+      } catch (e) {
+        return undefined;
+      }
+    };
+    return [label(9) || "AM", label(15) || "PM"];
   }
 
   /** Parts of an ISO moment in the Home Assistant time zone. */
@@ -446,12 +1577,12 @@ class TimercardCard extends HTMLElement {
     const now = Date.now();
     if (target === this._parts(new Date(now).toISOString()).date) return this._t("today");
     if (target === this._parts(new Date(now + 86400000).toISOString()).date) return this._t("tomorrow");
-    return new Intl.DateTimeFormat(this._lang, { weekday: "long", timeZone: this._tz }).format(new Date(iso));
+    return new Intl.DateTimeFormat(this._intlLang, { weekday: "long", timeZone: this._tz }).format(new Date(iso));
   }
 
   _dayNames(style = "short") {
     // 2024-01-01 was a Monday.
-    const fmt = new Intl.DateTimeFormat(this._lang, { weekday: style, timeZone: "UTC" });
+    const fmt = new Intl.DateTimeFormat(this._intlLang, { weekday: style, timeZone: "UTC" });
     return [0, 1, 2, 3, 4, 5, 6].map((i) => fmt.format(new Date(Date.UTC(2024, 0, 1 + i))));
   }
 
@@ -506,7 +1637,7 @@ class TimercardCard extends HTMLElement {
     const type = spec.type || "time";
     if (type === "time") {
       let text = this._t("when_time", { time: this._fmtHHMM(spec.time) });
-      if (isOff && (onSpec?.type || "time") === "time" && tcMinutes(spec.time) <= tcMinutes(onSpec.time)) {
+      if (isOff && onSpec && (onSpec.type || "time") === "time" && tcMinutes(spec.time) <= tcMinutes(onSpec.time)) {
         text += ` (${this._t("next_day")})`;
       }
       return text;
@@ -530,9 +1661,11 @@ class TimercardCard extends HTMLElement {
   }
 
   _groupText(group, verbs) {
-    let text = `${this._verb(verbs.on).toLowerCase()} ${this._whenText(group.on, false)}`;
-    if (verbs.hasOff && group.off && group.off.mode !== "none") {
-      text += `, ${this._verb(verbs.off).toLowerCase()} ${this._whenText(group.off, true, group.on)}`;
+    const part = (verb, when) => this._t("action_when", { verb: this._verb(verb).toLowerCase(), when });
+    if (group.action === "off") return part(verbs.off, this._whenText(group.off, true, null));
+    let text = part(verbs.on, this._whenText(group.on, false));
+    if (group.action === "on_off" && group.off && group.off.mode !== "none") {
+      text += `, ${part(verbs.off, this._whenText(group.off, true, group.on))}`;
     }
     return text;
   }
@@ -571,8 +1704,10 @@ class TimercardCard extends HTMLElement {
 
   /** The main times plus any "other times", each with its own next moments. */
   _groups(timer) {
+    const action = this._actionOf(timer);
     const raw = [{ days: timer.days || [], on: timer.on, off: timer.off }, ...(timer.overrides || [])];
     return raw.map((g, i) => ({
+      action,
       days: g.days || [],
       on: g.on,
       off: g.off || { mode: "none" },
@@ -611,7 +1746,7 @@ class TimercardCard extends HTMLElement {
     }
     this.shadowRoot.innerHTML = `
       <style>${TC_STYLES}</style>
-      <ha-card>
+      <ha-card dir="${this._dir}">
         <div class="header">
           <div class="title">${title ? tcEsc(title) : ""}</div>
           ${this._error ? "" : `<button class="primary-btn" data-action="new"><ha-icon icon="mdi:plus"></ha-icon><span>${tcEsc(this._t("new_timer"))}</span></button>`}
@@ -634,20 +1769,23 @@ class TimercardCard extends HTMLElement {
         <ha-icon icon="${tcEsc(this._entityIcon(e))}"></ha-icon>${tcEsc(this._entityName(e))}
       </span>`).join("");
 
+    const arrow = this._rtl ? "mdi:arrow-left-thick" : "mdi:arrow-right-thick";
+    const shows = (g) => (g.action === "off" ? "off" : g.action === "on" || g.off.mode === "none" ? "on" : "both");
     const events = groups.map((g) => {
-      const hasOff = verbs.hasOff && g.off.mode !== "none";
+      const show = shows(g);
       return `
         ${multi ? `<div class="group-label"><ha-icon icon="mdi:calendar-range"></ha-icon>${tcEsc(this._daysLabel(g.days))}</div>` : ""}
         <div class="events">
-          ${this._eventBox(g, "on", verbs)}
-          ${hasOff ? `<ha-icon class="arrow" icon="mdi:arrow-right-thick"></ha-icon>${this._eventBox(g, "off", verbs)}` : ""}
+          ${show !== "off" ? this._eventBox(g, "on", verbs) : ""}
+          ${show === "both" ? `<ha-icon class="arrow" icon="${arrow}"></ha-icon>` : ""}
+          ${show !== "on" ? this._eventBox(g, "off", verbs) : ""}
         </div>`;
     }).join("");
 
     // The bar shows the times that apply today.
     const today = this._todayWeekday();
     const barGroup = groups.find((g) => g.days.includes(today)) || groups[0];
-    const bar = this._renderBar(barGroup, verbs.hasOff && barGroup.off.mode !== "none");
+    const bar = this._renderBar(barGroup, shows(barGroup));
 
     let status;
     if (!enabled) status = `<ha-icon icon="mdi:pause-circle-outline"></ha-icon>${tcEsc(this._t("paused"))}`;
@@ -656,6 +1794,13 @@ class TimercardCard extends HTMLElement {
       status = `<ha-icon icon="mdi:play-circle"></ha-icon>${tcEsc(this._t("active_now", {
         verb: this._verb(verbs.off).toLowerCase(),
         when: this._t("when_time", { time: this._fmtHHMM(tcHHMM(p.minutes)) }),
+      }))}`;
+    } else if (groups[0].action === "off" && timer.next_off) {
+      const p = this._parts(timer.next_off);
+      status = `<ha-icon icon="mdi:clock-outline"></ha-icon>${tcEsc(this._t("next", {
+        verb: this._verb(verbs.off).toLowerCase(),
+        day: this._dayWord(timer.next_off),
+        time: this._fmtHHMM(tcHHMM(p.minutes)),
       }))}`;
     } else if (timer.next_on) {
       const p = this._parts(timer.next_on);
@@ -699,7 +1844,7 @@ class TimercardCard extends HTMLElement {
       icon = "mdi:timer-sand";
     } else if ((spec.type || "time") === "time") {
       main = this._fmtHHMM(spec.time);
-      if (which === "off" && (timer.on.type || "time") === "time" && tcMinutes(spec.time) <= tcMinutes(timer.on.time)) {
+      if (which === "off" && timer.action !== "off" && (timer.on.type || "time") === "time" && tcMinutes(spec.time) <= tcMinutes(timer.on.time)) {
         sub = this._t("next_day");
       }
     } else {
@@ -725,12 +1870,17 @@ class TimercardCard extends HTMLElement {
     return iso ? this._parts(iso).minutes : null;
   }
 
-  _renderBar(timer, hasOff) {
+  _renderBar(timer, show) {
+    const pct = (m) => `${((m / 1440) * 100).toFixed(2)}%`;
+    if (show === "off") {
+      const off = this._minuteOf(timer, "off");
+      if (off === null) return "";
+      return this._barHTML(`<div class="mark off" style="left:${pct(off)}"></div>`);
+    }
     const on = this._minuteOf(timer, "on");
     if (on === null) return "";
-    const pct = (m) => `${((m / 1440) * 100).toFixed(2)}%`;
     let segs = "";
-    if (hasOff) {
+    if (show === "both") {
       const off = this._minuteOf(timer, "off");
       if (off !== null) {
         const ranges = off > on ? [[on, off]] : [[on, 1440], [0, off]];
@@ -739,6 +1889,11 @@ class TimercardCard extends HTMLElement {
     } else {
       segs = `<div class="mark" style="left:${pct(on)}"></div>`;
     }
+    return this._barHTML(segs);
+  }
+
+  _barHTML(segs) {
+    const pct = (m) => `${((m / 1440) * 100).toFixed(2)}%`;
     const now = this._parts(new Date().toISOString()).minutes;
     return `
       <div class="bar" aria-hidden="true">
@@ -760,6 +1915,7 @@ class TimercardCard extends HTMLElement {
       off: { mode: "time", type: "time", time: "23:00", offset: 0, duration: 60 },
       options: { brightness: null, temperature: null, position: null },
       overrides: [],
+      action: "on_off",
     };
   }
 
@@ -767,8 +1923,15 @@ class TimercardCard extends HTMLElement {
     return {
       days: [...(group.days || [])],
       on: { type: "time", time: "19:00", offset: 0, ...(group.on || {}) },
-      off: { mode: "time", type: "time", time: "23:00", offset: 0, duration: 60, ...(group.off || {}) },
+      off: this._fillOff(group.off),
     };
+  }
+
+  _fillOff(off) {
+    const filled = { mode: "time", type: "time", time: "23:00", offset: 0, duration: 60, ...(off || {}) };
+    // "Don't turn off" is now the "Only turn on" choice, so keep a usable off time.
+    if (filled.mode === "none") filled.mode = "time";
+    return filled;
   }
 
   _openEditor(timer) {
@@ -782,6 +1945,7 @@ class TimercardCard extends HTMLElement {
         ...this._fillSpecs({ days: d.days || [0, 1, 2, 3, 4, 5, 6], on: d.on, off: d.off }),
         options: { brightness: null, temperature: null, position: null, ...(d.options || {}) },
         overrides: (d.overrides || []).map((o) => this._fillSpecs(o)),
+        action: this._actionOf(d),
       };
     } else {
       this._draft = this._newDraft();
@@ -835,13 +1999,13 @@ class TimercardCard extends HTMLElement {
     // Home Assistant Mac app.
     return `${typeSel}
       ${this._segmented(`${prefix}.dir`, [
-        { value: "exact", label: `${this._t("exactly")} ${sun}` },
+        { value: "exact", label: this._t("exactly_sun", { sun }) },
         { value: "before", label: this._t("before") },
         { value: "after", label: this._t("after") },
       ], dir)}
       ${dir === "exact" ? "" : `<div class="field-row sun-row">
         <input class="num" type="text" inputmode="numeric" maxlength="3" autocomplete="off" data-field="${prefix}.offset_abs" value="${Math.abs(offset) || 30}">
-        <span class="unit">${tcEsc(this._t("min"))} ${tcEsc(this._t(dir))} ${tcEsc(sun)}</span>
+        <span class="unit">${tcEsc(this._t("offset_unit", { dir: this._t(dir), sun }))}</span>
       </div>`}`;
   }
 
@@ -875,8 +2039,8 @@ class TimercardCard extends HTMLElement {
         </div>
         ${h12 ? `
           <div class="tp-ampm">
-            <button type="button" class="${h < 12 ? "selected" : ""}" data-action="ampm" data-prefix="${prefix}" data-value="am">AM</button>
-            <button type="button" class="${h >= 12 ? "selected" : ""}" data-action="ampm" data-prefix="${prefix}" data-value="pm">PM</button>
+            <button type="button" class="${h < 12 ? "selected" : ""}" data-action="ampm" data-prefix="${prefix}" data-value="am">${tcEsc(this._dayPeriods()[0])}</button>
+            <button type="button" class="${h >= 12 ? "selected" : ""}" data-action="ampm" data-prefix="${prefix}" data-value="pm">${tcEsc(this._dayPeriods()[1])}</button>
           </div>` : ""}
       </div>`;
   }
@@ -1019,12 +2183,11 @@ class TimercardCard extends HTMLElement {
   }
 
   _offEditor(prefix, group, verbs) {
-    if (!verbs.hasOff) return `<div class="hint">${tcEsc(this._t("only_on"))}</div>`;
+    if (this._draft.action === "off") return this._momentEditor(prefix, group.off);
     const mode = group.off.mode;
     return `${this._segmented(`${prefix}.mode`, [
         { value: "time", label: this._t("off_at_time"), icon: "mdi:clock-outline" },
         { value: "duration", label: this._t("off_after"), icon: "mdi:timer-sand" },
-        { value: "none", label: this._t("off_none", { verb: this._verb(verbs.off).toLowerCase() }), icon: "mdi:cancel" },
       ], mode, "wrap")}
       ${mode === "time" ? `<div class="sub-block">${this._momentEditor(prefix, group.off)}<div class="next-day-note" data-val="next-day" data-group="${prefix}">${this._nextDayNote(group)}</div></div>` : ""}
       ${mode === "duration" ? this._durationEditor(prefix, group.off) : ""}`;
@@ -1054,9 +2217,10 @@ class TimercardCard extends HTMLElement {
         </div>
         <div class="label">${tcEsc(this._t("other_days"))}</div>
         ${this._dayToggles(i)}
-        <div class="sub-title on"><ha-icon icon="mdi:power"></ha-icon>${tcEsc(this._verb(verbs.on))}</div>
-        ${this._momentEditor(`overrides.${i}.on`, o.on)}
-        ${verbs.hasOff ? `
+        ${this._draft.action !== "off" ? `
+          <div class="sub-title on"><ha-icon icon="mdi:power"></ha-icon>${tcEsc(this._verb(verbs.on))}</div>
+          ${this._momentEditor(`overrides.${i}.on`, o.on)}` : ""}
+        ${this._draft.action !== "on" ? `
           <div class="sub-title off"><ha-icon icon="mdi:power-off"></ha-icon>${tcEsc(this._verb(verbs.off))}</div>
           ${this._offEditor(`overrides.${i}.off`, o, verbs)}` : ""}
       </div>`;
@@ -1068,14 +2232,16 @@ class TimercardCard extends HTMLElement {
     const errors = this._validation();
     const dayKey = [...d.days].sort().join(",");
     const perDay = d.overrides.length > 0;
+    if (!verbs.hasOff) d.action = "on";
+    const action = d.action;
     const badge = perDay ? `<span class="badge">${tcEsc(d.days.length ? this._daysLabel(d.days) : "…")}</span>` : "";
 
     this.shadowRoot.innerHTML = `
       <style>${TC_STYLES}</style>
-      <ha-card>
+      <ha-card dir="${this._dir}">
         <div class="editor">
           <div class="editor-head">
-            <button class="icon-btn" data-action="cancel" aria-label="${tcEsc(this._t("cancel"))}"><ha-icon icon="mdi:arrow-left"></ha-icon></button>
+            <button class="icon-btn" data-action="cancel" aria-label="${tcEsc(this._t("cancel"))}"><ha-icon icon="${this._rtl ? "mdi:arrow-right" : "mdi:arrow-left"}"></ha-icon></button>
             <div class="title">${tcEsc(this._t(d.id ? "edit_timer" : "new_timer"))}</div>
           </div>
 
@@ -1084,16 +2250,28 @@ class TimercardCard extends HTMLElement {
             ${this._devicePicker()}
           </section>
 
+          ${verbs.hasOff ? `
+          <section class="step">
+            <div class="step-title"><span class="num"><ha-icon icon="mdi:swap-horizontal"></ha-icon></span>${tcEsc(this._t("step_action"))}</div>
+            ${this._segmented("action", [
+              { value: "on_off", label: this._t("action_both", { on: this._verb(verbs.on), off: this._verb(verbs.off).toLowerCase() }), icon: "mdi:power-cycle" },
+              { value: "on", label: this._t("action_only", { verb: this._verb(verbs.on).toLowerCase() }), icon: "mdi:power" },
+              { value: "off", label: this._t("action_only", { verb: this._verb(verbs.off).toLowerCase() }), icon: "mdi:power-off" },
+            ], action, "wrap")}
+          </section>` : `<div class="hint">${tcEsc(this._t("only_on"))}</div>`}
+
+          ${action !== "off" ? `
           <section class="step step-on">
             <div class="step-title"><span class="num on"><ha-icon icon="mdi:power"></ha-icon></span>${tcEsc(this._verb(verbs.on))}${badge}</div>
             ${this._momentEditor("on", d.on)}
             ${this._optionsEditor()}
-          </section>
+          </section>` : ""}
 
+          ${action !== "on" ? `
           <section class="step step-off">
-            <div class="step-title"><span class="num off"><ha-icon icon="mdi:power-off"></ha-icon></span>${tcEsc(this._verb(verbs.off))}${verbs.hasOff ? badge : ""}</div>
+            <div class="step-title"><span class="num off"><ha-icon icon="mdi:power-off"></ha-icon></span>${tcEsc(this._verb(verbs.off))}${badge}</div>
             ${this._offEditor("off", d, verbs)}
-          </section>
+          </section>` : ""}
 
           <section class="step">
             <div class="step-title"><span class="num"><ha-icon icon="mdi:calendar-week"></ha-icon></span>${tcEsc(this._t("step_days"))}</div>
@@ -1133,8 +2311,8 @@ class TimercardCard extends HTMLElement {
           ${d.id ? `
             <div class="try">
               <span>${tcEsc(this._t("try_now"))}</span>
-              <button type="button" class="small-btn on" data-action="run" data-event="on"><ha-icon icon="mdi:power"></ha-icon>${tcEsc(this._verb(verbs.on))}</button>
-              ${verbs.hasOff ? `<button type="button" class="small-btn off" data-action="run" data-event="off"><ha-icon icon="mdi:power-off"></ha-icon>${tcEsc(this._verb(verbs.off))}</button>` : ""}
+              ${action !== "off" ? `<button type="button" class="small-btn on" data-action="run" data-event="on"><ha-icon icon="mdi:power"></ha-icon>${tcEsc(this._verb(verbs.on))}</button>` : ""}
+              ${action !== "on" ? `<button type="button" class="small-btn off" data-action="run" data-event="off"><ha-icon icon="mdi:power-off"></ha-icon>${tcEsc(this._verb(verbs.off))}</button>` : ""}
             </div>` : ""}
 
           <div class="actions">
@@ -1172,8 +2350,7 @@ class TimercardCard extends HTMLElement {
   _draftAsTimer() {
     const d = this._draft;
     const verbs = this._verbsFor(d.entities);
-    const off = (spec) => (verbs.hasOff ? spec : { mode: "none" });
-    return { ...d, off: off(d.off), overrides: d.overrides.map((o) => ({ ...o, off: off(o.off) })) };
+    return { ...d, action: verbs.hasOff ? d.action : "on" };
   }
 
   _resolve(path) {
@@ -1199,6 +2376,7 @@ class TimercardCard extends HTMLElement {
     const d = this._draft;
     if (field === "name") { d.name = value; return; }
     if (field === "search") { this._search = value; return; }
+    if (field === "action") { d.action = value; return; }
     const parts = field.split(".");
     const key = parts.pop();
     if (parts[0] === "options") {
@@ -1477,9 +2655,13 @@ class TimercardCard extends HTMLElement {
       if (out.type === "time") out.offset = 0;
       return out;
     };
-    const cleanOff = (off) => (verbs.hasOff && off.mode !== "none"
-      ? { mode: off.mode, ...clean(off), duration: Math.max(1, parseInt(off.duration, 10) || 60) }
-      : { mode: "none" });
+    const action = verbs.hasOff ? d.action : "on";
+    const cleanOff = (off) => {
+      if (action === "on" || off.mode === "none") return { mode: "none" };
+      // Only turning off needs a moment of its own, not "after a while".
+      const mode = action === "off" ? "time" : off.mode;
+      return { mode, ...clean(off), duration: Math.max(1, parseInt(off.duration, 10) || 60) };
+    };
     const options = {};
     const domains = new Set(d.entities.map(tcDomain));
     if (domains.has("light") && d.options.brightness != null) options.brightness = Number(d.options.brightness);
@@ -1488,6 +2670,7 @@ class TimercardCard extends HTMLElement {
     return {
       name: (d.name || "").trim() || this._autoName(d.entities),
       enabled: d.enabled,
+      action,
       entities: d.entities,
       days: [...d.days].sort((a, b) => a - b),
       on: clean(d.on),
@@ -1620,7 +2803,7 @@ const TC_STYLES = `
   .events { display: flex; align-items: stretch; gap: 8px; }
   .event {
     flex: 1; min-width: 0; border-radius: 10px; padding: 8px 10px;
-    border-left: 4px solid; display: flex; flex-direction: column; gap: 2px;
+    border-inline-start: 4px solid; display: flex; flex-direction: column; gap: 2px;
   }
   .event.on { border-color: var(--tc-on); background: color-mix(in srgb, var(--tc-on) 10%, transparent); }
   .event.off { border-color: var(--tc-off); background: color-mix(in srgb, var(--tc-off) 10%, transparent); }
@@ -1632,9 +2815,13 @@ const TC_STYLES = `
   .event-sub { font-size: .78rem; color: var(--tc-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .arrow { align-self: center; color: var(--tc-muted); --mdc-icon-size: 20px; }
 
+  .bar { direction: ltr; }
+  .time-picker, .event-time { direction: ltr; unicode-bidi: isolate; }
+  .toggle { direction: ltr; }
   .bar .track { position: relative; height: 8px; border-radius: 4px; background: var(--tc-soft); overflow: hidden; }
   .bar .seg { position: absolute; top: 0; bottom: 0; background: var(--tc-on); border-radius: 4px; opacity: .85; }
   .bar .mark { position: absolute; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: var(--tc-on); border-radius: 2px; }
+  .bar .mark.off { background: var(--tc-off); }
   .bar .now { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; background: var(--tc-text); opacity: .55; }
   .bar .ticks { display: flex; justify-content: space-between; font-size: .65rem; color: var(--tc-muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
 
@@ -1664,10 +2851,10 @@ const TC_STYLES = `
 
   /* ---- editor ---- */
   .editor { padding: 8px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
-  .editor-head { display: flex; align-items: center; gap: 8px; margin-left: -6px; }
+  .editor-head { display: flex; align-items: center; gap: 8px; margin-inline-start: -6px; }
   .step { border: 1px solid var(--tc-line); border-radius: var(--tc-radius); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-  .step-on { border-left: 4px solid var(--tc-on); }
-  .step-off { border-left: 4px solid var(--tc-off); }
+  .step-on { border-inline-start: 4px solid var(--tc-on); }
+  .step-off { border-inline-start: 4px solid var(--tc-off); }
   .step-title { display: flex; align-items: center; gap: 8px; font-weight: 500; }
   .step-title .num {
     width: 26px; height: 26px; border-radius: 50%; flex: none; display: inline-flex; align-items: center; justify-content: center;
@@ -1709,7 +2896,7 @@ const TC_STYLES = `
     border-radius: 10px; border: 1px solid var(--tc-line); background: var(--tc-soft); color: var(--tc-text);
   }
   .tp-colon { font-size: 1.8rem; font-weight: 500; padding-bottom: 2px; }
-  .tp-ampm { display: flex; flex-direction: column; gap: 6px; margin-left: 8px; }
+  .tp-ampm { display: flex; flex-direction: column; gap: 6px; margin-inline-start: 8px; }
   .tp-ampm button {
     border: 1px solid var(--tc-line); background: var(--tc-card); border-radius: 8px; padding: 4px 10px;
     font-size: .85rem; min-height: 32px;
@@ -1722,7 +2909,7 @@ const TC_STYLES = `
   .text-input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--tc-line); background: var(--tc-soft); }
   input:focus-visible { outline: 2px solid var(--tc-accent); outline-offset: 1px; }
   input[type=range] { flex: 1; min-width: 120px; accent-color: var(--tc-on); }
-  .range-val { min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
+  .range-val { min-width: 44px; text-align: end; font-variant-numeric: tabular-nums; }
   .next-day-note { display: flex; align-items: center; gap: 6px; color: var(--tc-muted); font-size: .85rem; }
   .next-day-note:empty { display: none; }
   .option { display: flex; flex-direction: column; gap: 6px; border-top: 1px dashed var(--tc-line); padding-top: 10px; }
@@ -1748,7 +2935,7 @@ const TC_STYLES = `
   .results:empty { display: none; }
   .result {
     display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center;
-    text-align: left; border: none; background: none; padding: 8px; border-radius: 8px;
+    text-align: start; border: none; background: none; padding: 8px; border-radius: 8px;
   }
   .result:hover { background: var(--tc-soft); }
   .result ha-icon { grid-row: span 2; color: var(--tc-muted); }
@@ -1762,7 +2949,7 @@ const TC_STYLES = `
   .group-label { display: flex; align-items: center; gap: 4px; font-size: .8rem; font-weight: 500; color: var(--tc-muted); margin-top: 2px; }
   .group-label ha-icon { --mdc-icon-size: 14px; }
   .badge {
-    margin-left: auto; font-size: .78rem; font-weight: 500; padding: 2px 10px; border-radius: 999px;
+    margin-inline-start: auto; font-size: .78rem; font-weight: 500; padding: 2px 10px; border-radius: 999px;
     background: var(--tc-soft); color: var(--tc-muted); white-space: nowrap;
   }
   .day.elsewhere { border-style: dashed; color: var(--tc-muted); opacity: .7; }
@@ -1776,14 +2963,14 @@ const TC_STYLES = `
     display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 10px;
     border: 1px solid var(--tc-line); background: color-mix(in srgb, var(--tc-soft) 50%, transparent);
   }
-  .override-head { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: -4px -6px -4px 0; }
+  .override-head { display: flex; align-items: center; gap: 8px; font-weight: 500; margin-block: -4px; margin-inline-end: -6px; }
   .override-head ha-icon { color: var(--tc-accent); }
   .sub-title { display: flex; align-items: center; gap: 6px; font-weight: 500; font-size: .9rem; padding-top: 4px; }
   .sub-title ha-icon { --mdc-icon-size: 16px; }
   .sub-title.on { color: var(--tc-on); }
   .sub-title.off { color: var(--tc-off); border-top: 1px dashed var(--tc-line); padding-top: 10px; }
   .add-override { align-self: flex-start; }
-  .summary ul { margin: 4px 0 0; padding-left: 18px; }
+  .summary ul { margin: 4px 0 0; padding-inline-start: 18px; }
   .summary {
     display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: var(--tc-radius);
     background: color-mix(in srgb, var(--tc-accent) 9%, transparent); line-height: 1.45;
@@ -1822,14 +3009,13 @@ class TimercardCardEditor extends HTMLElement {
 
   _render() {
     if (!this._hass || !this._config) return;
-    const nl = (this._hass.locale?.language || "").startsWith("nl");
+    const lang = (this._hass.locale?.language || this._hass.language || "en").split("-")[0].toLowerCase();
+    const strings = TC_I18N[lang] || TC_I18N.en;
     if (!this._form) {
       this._form = document.createElement("ha-form");
       this._form.computeLabel = (s) => ({
-        title: nl ? "Titel" : "Title",
-        entities: nl
-          ? "Alleen deze apparaten (leeg = alle apparaten)"
-          : "Only these devices (empty = all devices)",
+        title: strings.cfg_title || TC_I18N.en.cfg_title,
+        entities: strings.cfg_entities || TC_I18N.en.cfg_entities,
       })[s.name];
       this._form.addEventListener("value-changed", (ev) => {
         const value = { ...ev.detail.value };

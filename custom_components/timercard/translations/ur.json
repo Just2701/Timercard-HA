@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Timercard",
+        "description": "Timercard شامل کریں؟ اس کے بعد ٹائمر بنانے کے لیے ڈیش بورڈ میں \"Timercard\" کارڈ شامل کریں۔"
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Timercard پہلے سے سیٹ اپ ہے۔"
+    },
+    "create_entry": {
+      "default": "Timercard تیار ہے۔ اب اپنا براؤزر ریفریش کریں (Ctrl+F5، Mac پر Cmd+Shift+R)۔ Home Assistant ایپ میں: سیٹنگز ← Companion ایپ ← ڈیبگنگ ← فرنٹ اینڈ کیش ری سیٹ کریں۔ پھر ڈیش بورڈ میں ترمیم کریں، کارڈ شامل کریں منتخب کریں اور \"Timercard\" تلاش کریں۔"
+    }
+  }
+}

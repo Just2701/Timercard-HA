@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Timercard",
+        "description": "Timercard जोड़ें? इसके बाद टाइमर बनाने के लिए डैशबोर्ड पर \"Timercard\" कार्ड जोड़ें।"
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Timercard पहले से सेट है।"
+    },
+    "create_entry": {
+      "default": "Timercard तैयार है। अब अपना ब्राउज़र रीफ़्रेश करें (Ctrl+F5, Mac पर Cmd+Shift+R)। Home Assistant ऐप में: सेटिंग्स → Companion ऐप → डीबगिंग → फ़्रंटएंड कैश रीसेट करें। फिर डैशबोर्ड संपादित करें, कार्ड जोड़ें चुनें और \"Timercard\" खोजें।"
+    }
+  }
+}

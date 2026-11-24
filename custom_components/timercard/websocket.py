@@ -12,7 +12,11 @@ from homeassistant.core import HomeAssistant, callback
 import homeassistant.helpers.config_validation as cv
 
 from .const import (
+    ACTION_OFF,
+    ACTION_ON_OFF,
+    ACTIONS,
     DOMAIN,
+    OFF_MODE_DURATION,
     EVENT_OFF,
     EVENT_ON,
     OFF_MODE_NONE,
@@ -84,6 +88,15 @@ OVERRIDE_SCHEMA = vol.Schema(
 OVERRIDES_SCHEMA = vol.All([OVERRIDE_SCHEMA], vol.Length(max=6))
 
 
+def _check_timer(timer: dict[str, Any]) -> str | None:
+    """Return an error message for combinations the schema cannot catch."""
+    if timer.get("action") == ACTION_OFF:
+        offs = [timer.get("off") or {}] + [o.get("off") or {} for o in timer.get("overrides") or []]
+        if any(off.get("mode") in (OFF_MODE_DURATION, OFF_MODE_NONE) for off in offs):
+            return "A timer that only turns off needs an off time"
+    return _check_days(timer)
+
+
 def _check_days(timer: dict[str, Any]) -> str | None:
     """Return an error when a weekday is used by more than one set of times."""
     seen: set[int] = set(timer.get("days") or [])
@@ -98,6 +111,7 @@ def _check_days(timer: dict[str, Any]) -> str | None:
 TIMER_FIELDS = {
     vol.Optional("name"): vol.All(str, vol.Length(max=100)),
     vol.Optional("enabled"): bool,
+    vol.Optional("action"): vol.In(ACTIONS),
     vol.Optional("entities"): vol.All(cv.entity_ids, vol.Length(min=1)),
     vol.Optional("days"): DAYS_SCHEMA,
     vol.Optional("on"): ON_SCHEMA,
@@ -173,6 +187,7 @@ def ws_subscribe(
         vol.Required("on"): ON_SCHEMA,
         vol.Optional("name", default=""): vol.All(str, vol.Length(max=100)),
         vol.Optional("enabled", default=True): bool,
+        vol.Optional("action", default=ACTION_ON_OFF): vol.In(ACTIONS),
         vol.Optional("days", default=[0, 1, 2, 3, 4, 5, 6]): DAYS_SCHEMA,
         vol.Optional("off", default={"mode": OFF_MODE_NONE}): OFF_SCHEMA,
         vol.Optional("options", default={}): OPTIONS_SCHEMA,
@@ -187,7 +202,7 @@ async def ws_create(
     if _not_loaded(connection, msg):
         return
     data = {key: value for key, value in msg.items() if key not in ("id", "type")}
-    if error := _check_days(data):
+    if error := _check_timer(data):
         connection.send_error(msg["id"], "invalid_format", error)
         return
     timer = await _manager(hass).async_create(data)
@@ -217,7 +232,7 @@ async def ws_update(
         for key, value in msg.items()
         if key not in ("id", "type", "timer_id")
     }
-    if error := _check_days({**manager.timers[msg["timer_id"]], **changes}):
+    if error := _check_timer({**manager.timers[msg["timer_id"]], **changes}):
         connection.send_error(msg["id"], "invalid_format", error)
         return
     timer = await manager.async_update(msg["timer_id"], changes)

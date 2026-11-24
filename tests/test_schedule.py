@@ -125,3 +125,26 @@ async def test_override_over_midnight(hass: HomeAssistant) -> None:
     friday_21 = _local(hass, 2026, 11, 27, 21, 0)
     assert next_moment(hass, timer, "off", friday_21) == _local(hass, 2026, 11, 28, 1, 0)
     assert is_active(hass, timer, _local(hass, 2026, 11, 28, 0, 30))
+
+
+async def test_only_off(hass: HomeAssistant) -> None:
+    """A timer that only turns off at 23:30 (nothing turns on)."""
+    timer = _timer(
+        action="off",
+        off={"mode": "time", "type": "time", "time": "23:30"},
+    )
+    now = _local(hass, 2026, 11, 23, 12, 0)
+    assert next_moment(hass, timer, "on", now) is None
+    assert next_moment(hass, timer, "off", now) == _local(hass, 2026, 11, 23, 23, 30)
+    # Even when the off time is "earlier" than the stored on time, it is the same day.
+    timer["off"]["time"] = "06:00"
+    assert next_moment(hass, timer, "off", now) == _local(hass, 2026, 11, 24, 6, 0)
+    assert not is_active(hass, timer, now)
+
+
+async def test_only_on_ignores_off(hass: HomeAssistant) -> None:
+    """With action "on" the stored off time is not used."""
+    timer = _timer(action="on")
+    now = _local(hass, 2026, 11, 23, 12, 0)
+    assert next_moment(hass, timer, "on", now) == _local(hass, 2026, 11, 23, 19, 0)
+    assert next_moment(hass, timer, "off", now) is None

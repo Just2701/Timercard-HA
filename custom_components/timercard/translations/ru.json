@@ -1,0 +1,16 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Timercard",
+        "description": "Добавить Timercard? После этого добавьте карточку «Timercard» на панель, чтобы создавать таймеры."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Timercard уже настроен."
+    },
+    "create_entry": {
+      "default": "Timercard готов. Обновите браузер (Ctrl+F5 или Cmd+Shift+R на Mac). В приложении Home Assistant: Настройки → Companion-приложение → Отладка → Сбросить кэш интерфейса. Затем измените панель, выберите «Добавить карточку» и найдите «Timercard»."
+    }
+  }
+}
