@@ -16,7 +16,8 @@ device on and what turns it off again.
 - 🌙 Off time earlier than on time (e.g. 22:00 → 06:30) means **the next day**
 - 📅 Pick days with one tap: *Every day*, *Weekdays*, *Weekend*, or single days
 - 🗓️ Optional **different times on some days** (e.g. later in the weekend). It stays hidden until you switch it on
-- 💡 Optional extras: brightness for lights, temperature for thermostats, position for covers
+- 💡 Optional extras: brightness for lights, temperature for thermostats
+- 🪟 Blinds: choose how far they open **and** how far they close, with its own position for every blind
 - 📝 A plain-language **"In short"** sentence that shows exactly what the timer will do
 - 📊 A 24-hour bar per timer showing when the device is on, plus "Next: turn on today at 19:00"
 - ⏸️ Pause a timer with its toggle. Each timer is also a `switch.timercard_…` entity, so automations can pause timers too (e.g. on holiday)

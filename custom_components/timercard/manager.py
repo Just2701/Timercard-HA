@@ -33,6 +33,34 @@ _LOGGER = logging.getLogger(__name__)
 EVENT_TIMER_EXECUTED = f"{DOMAIN}_executed"
 
 
+def cover_positions(options: dict[str, Any], event: str) -> dict[str, int]:
+    """Return {cover entity_id: position} chosen for the on (open) or off (close) moment."""
+    positions = (options.get("positions") or {}).get(event) or {}
+    return {entity_id: int(pos) for entity_id, pos in positions.items() if pos is not None}
+
+
+def _cover_calls(
+    options: dict[str, Any], event: str, entity_ids: list[str], service: str
+) -> list[tuple[str, str, dict[str, Any]]]:
+    """Open/close covers, or move each to its own chosen position."""
+    wanted = cover_positions(options, event)
+    if event == EVENT_ON and not wanted and options.get("position") is not None:
+        # Older timers: one "set position" value for all covers when opening.
+        wanted = {entity_id: int(options["position"]) for entity_id in entity_ids}
+
+    calls: list[tuple[str, str, dict[str, Any]]] = []
+    plain = [entity_id for entity_id in entity_ids if entity_id not in wanted]
+    if plain:
+        calls.append(("cover", service, {ATTR_ENTITY_ID: plain}))
+    by_position: dict[int, list[str]] = {}
+    for entity_id in entity_ids:
+        if entity_id in wanted:
+            by_position.setdefault(wanted[entity_id], []).append(entity_id)
+    for position, ids in sorted(by_position.items()):
+        calls.append(("cover", "set_cover_position", {ATTR_ENTITY_ID: ids, "position": position}))
+    return calls
+
+
 def build_service_calls(
     timer: dict[str, Any], event: str
 ) -> list[tuple[str, str, dict[str, Any]]]:
@@ -47,6 +75,11 @@ def build_service_calls(
         on_service, off_service = DOMAIN_ACTIONS.get(domain, ("turn_on", "turn_off"))
         data: dict[str, Any] = {ATTR_ENTITY_ID: entity_ids}
 
+        if domain == "cover":
+            service = on_service if event == EVENT_ON else off_service
+            calls.extend(_cover_calls(options, event, entity_ids, service))
+            continue
+
         if event == EVENT_OFF:
             if off_service is not None:
                 calls.append((domain, off_service, data))
@@ -54,11 +87,6 @@ def build_service_calls(
 
         if domain == "light" and options.get("brightness") is not None:
             data["brightness_pct"] = int(options["brightness"])
-        if domain == "cover" and options.get("position") is not None:
-            calls.append(
-                (domain, "set_cover_position", {**data, "position": int(options["position"])})
-            )
-            continue
         if domain == "climate" and options.get("temperature") is not None:
             calls.append((domain, on_service, dict(data)))
             calls.append(

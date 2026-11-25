@@ -8,7 +8,7 @@
  * and runs the timers.
  */
 
-const TC_VERSION = "1.4.0";
+const TC_VERSION = "1.5.0";
 
 /* Which domains can be scheduled and which words fit their on/off actions. */
 const TC_DOMAINS = {
@@ -96,7 +96,11 @@ const TC_I18N = {
     "only_on": "These devices can only be switched one way, so there is nothing to undo.",
     "set_brightness": "Set brightness",
     "set_temperature": "Set temperature",
-    "set_position": "Set position",
+    "set_open_pos": "Choose how far it opens",
+    "set_close_pos": "Choose how far it closes",
+    "pos_hint": "0% = fully closed, 100% = fully open",
+    "pos_custom": "own position per device",
+    "pos_unsupported": "{names} can only open or close fully.",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -201,7 +205,11 @@ const TC_I18N = {
     "only_on": "Deze apparaten kunnen maar één kant op, dus er valt niets terug te zetten.",
     "set_brightness": "Helderheid instellen",
     "set_temperature": "Temperatuur instellen",
-    "set_position": "Positie instellen",
+    "set_open_pos": "Kies hoe ver het opengaat",
+    "set_close_pos": "Kies hoe ver het dichtgaat",
+    "pos_hint": "0% = helemaal dicht, 100% = helemaal open",
+    "pos_custom": "eigen positie per apparaat",
+    "pos_unsupported": "{names} kan alleen helemaal open of dicht.",
     "save": "Opslaan",
     "cancel": "Annuleren",
     "delete": "Verwijderen",
@@ -306,7 +314,11 @@ const TC_I18N = {
     "only_on": "这些设备只能单向操作，因此没有需要撤销的动作。",
     "set_brightness": "设置亮度",
     "set_temperature": "设置温度",
-    "set_position": "设置位置",
+    "set_open_pos": "选择打开的程度",
+    "set_close_pos": "选择关闭的程度",
+    "pos_hint": "0% = 完全关闭，100% = 完全打开",
+    "pos_custom": "每个设备各自的位置",
+    "pos_unsupported": "{names} 只能完全打开或完全关闭。",
     "save": "保存",
     "cancel": "取消",
     "delete": "删除",
@@ -411,7 +423,11 @@ const TC_I18N = {
     "only_on": "ये डिवाइस केवल एक ही तरफ़ काम करते हैं, इसलिए वापस करने को कुछ नहीं है।",
     "set_brightness": "चमक सेट करें",
     "set_temperature": "तापमान सेट करें",
-    "set_position": "स्थिति सेट करें",
+    "set_open_pos": "चुनें कि कितना खुले",
+    "set_close_pos": "चुनें कि कितना बंद हो",
+    "pos_hint": "0% = पूरी तरह बंद, 100% = पूरी तरह खुला",
+    "pos_custom": "हर डिवाइस की अपनी स्थिति",
+    "pos_unsupported": "{names} केवल पूरी तरह खुल या बंद हो सकता है।",
     "save": "सहेजें",
     "cancel": "रद्द करें",
     "delete": "हटाएँ",
@@ -516,7 +532,11 @@ const TC_I18N = {
     "only_on": "Estos dispositivos solo funcionan en un sentido, así que no hay nada que deshacer.",
     "set_brightness": "Ajustar brillo",
     "set_temperature": "Ajustar temperatura",
-    "set_position": "Ajustar posición",
+    "set_open_pos": "Elegir cuánto se abre",
+    "set_close_pos": "Elegir cuánto se cierra",
+    "pos_hint": "0 % = cerrado del todo, 100 % = abierto del todo",
+    "pos_custom": "posición propia para cada dispositivo",
+    "pos_unsupported": "{names} solo puede abrirse o cerrarse del todo.",
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",
@@ -621,7 +641,11 @@ const TC_I18N = {
     "only_on": "هذه الأجهزة تعمل في اتجاه واحد فقط، لذلك لا يوجد ما يمكن التراجع عنه.",
     "set_brightness": "ضبط السطوع",
     "set_temperature": "ضبط درجة الحرارة",
-    "set_position": "ضبط الموضع",
+    "set_open_pos": "اختر مدى الفتح",
+    "set_close_pos": "اختر مدى الإغلاق",
+    "pos_hint": "0% = مغلق تمامًا، 100% = مفتوح تمامًا",
+    "pos_custom": "موضع خاص لكل جهاز",
+    "pos_unsupported": "{names} يمكنه الفتح أو الإغلاق بالكامل فقط.",
     "save": "حفظ",
     "cancel": "إلغاء",
     "delete": "حذف",
@@ -726,7 +750,11 @@ const TC_I18N = {
     "only_on": "Ces appareils ne fonctionnent que dans un sens : il n’y a rien à annuler.",
     "set_brightness": "Régler la luminosité",
     "set_temperature": "Régler la température",
-    "set_position": "Régler la position",
+    "set_open_pos": "Choisir jusqu’où il s’ouvre",
+    "set_close_pos": "Choisir jusqu’où il se ferme",
+    "pos_hint": "0 % = complètement fermé, 100 % = complètement ouvert",
+    "pos_custom": "position propre à chaque appareil",
+    "pos_unsupported": "{names} ne peut que s’ouvrir ou se fermer complètement.",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "delete": "Supprimer",
@@ -831,7 +859,11 @@ const TC_I18N = {
     "only_on": "এই ডিভাইসগুলো শুধু এক দিকেই কাজ করে, তাই ফেরানোর কিছু নেই।",
     "set_brightness": "উজ্জ্বলতা সেট করুন",
     "set_temperature": "তাপমাত্রা সেট করুন",
-    "set_position": "অবস্থান সেট করুন",
+    "set_open_pos": "কতটা খুলবে বেছে নিন",
+    "set_close_pos": "কতটা বন্ধ হবে বেছে নিন",
+    "pos_hint": "0% = পুরো বন্ধ, 100% = পুরো খোলা",
+    "pos_custom": "প্রতিটি ডিভাইসের নিজস্ব অবস্থান",
+    "pos_unsupported": "{names} শুধু পুরো খুলতে বা পুরো বন্ধ হতে পারে।",
     "save": "সংরক্ষণ",
     "cancel": "বাতিল",
     "delete": "মুছুন",
@@ -936,7 +968,11 @@ const TC_I18N = {
     "only_on": "Estes dispositivos só funcionam num sentido, por isso não há nada para desfazer.",
     "set_brightness": "Definir brilho",
     "set_temperature": "Definir temperatura",
-    "set_position": "Definir posição",
+    "set_open_pos": "Escolher o quanto abre",
+    "set_close_pos": "Escolher o quanto fecha",
+    "pos_hint": "0% = totalmente fechado, 100% = totalmente aberto",
+    "pos_custom": "posição própria para cada dispositivo",
+    "pos_unsupported": "{names} só pode abrir ou fechar totalmente.",
     "save": "Salvar",
     "cancel": "Cancelar",
     "delete": "Excluir",
@@ -1041,7 +1077,11 @@ const TC_I18N = {
     "only_on": "Эти устройства работают только в одну сторону, отменять нечего.",
     "set_brightness": "Задать яркость",
     "set_temperature": "Задать температуру",
-    "set_position": "Задать положение",
+    "set_open_pos": "Выбрать, насколько открывать",
+    "set_close_pos": "Выбрать, насколько закрывать",
+    "pos_hint": "0% = полностью закрыто, 100% = полностью открыто",
+    "pos_custom": "своё положение для каждого устройства",
+    "pos_unsupported": "{names} может только полностью открываться или закрываться.",
     "save": "Сохранить",
     "cancel": "Отмена",
     "delete": "Удалить",
@@ -1146,7 +1186,11 @@ const TC_I18N = {
     "only_on": "یہ ڈیوائسز صرف ایک طرف کام کرتی ہیں، اس لیے واپس کرنے کو کچھ نہیں۔",
     "set_brightness": "روشنی سیٹ کریں",
     "set_temperature": "درجہ حرارت سیٹ کریں",
-    "set_position": "پوزیشن سیٹ کریں",
+    "set_open_pos": "منتخب کریں کہ کتنا کھلے",
+    "set_close_pos": "منتخب کریں کہ کتنا بند ہو",
+    "pos_hint": "0% = مکمل بند، 100% = مکمل کھلا",
+    "pos_custom": "ہر ڈیوائس کی اپنی پوزیشن",
+    "pos_unsupported": "{names} صرف مکمل کھل یا بند ہو سکتا ہے۔",
     "save": "محفوظ کریں",
     "cancel": "منسوخ",
     "delete": "حذف کریں",
@@ -1251,7 +1295,11 @@ const TC_I18N = {
     "only_on": "Perangkat ini hanya bisa satu arah, jadi tidak ada yang perlu dibatalkan.",
     "set_brightness": "Atur kecerahan",
     "set_temperature": "Atur suhu",
-    "set_position": "Atur posisi",
+    "set_open_pos": "Pilih seberapa jauh terbuka",
+    "set_close_pos": "Pilih seberapa jauh tertutup",
+    "pos_hint": "0% = tertutup penuh, 100% = terbuka penuh",
+    "pos_custom": "posisi sendiri untuk tiap perangkat",
+    "pos_unsupported": "{names} hanya bisa terbuka atau tertutup penuh.",
     "save": "Simpan",
     "cancel": "Batal",
     "delete": "Hapus",
@@ -1704,11 +1752,15 @@ class TimercardCard extends HTMLElement {
   }
 
   _groupText(group, verbs) {
-    const part = (verb, when) => this._t("action_when", { verb: this._verb(verb).toLowerCase(), when });
-    if (group.action === "off") return part(verbs.off, this._whenText(group.off, true, null));
-    let text = part(verbs.on, this._whenText(group.on, false));
+    const part = (verb, when, which) => {
+      const pos = this._posText(group, which, true);
+      const label = this._verb(verb).toLowerCase() + (pos ? ` (${pos})` : "");
+      return this._t("action_when", { verb: label, when });
+    };
+    if (group.action === "off") return part(verbs.off, this._whenText(group.off, true, null), "off");
+    let text = part(verbs.on, this._whenText(group.on, false), "on");
     if (group.action === "on_off" && group.off && group.off.mode !== "none") {
-      text += `, ${part(verbs.off, this._whenText(group.off, true, group.on))}`;
+      text += `, ${part(verbs.off, this._whenText(group.off, true, group.on), "off")}`;
     }
     return text;
   }
@@ -1751,6 +1803,8 @@ class TimercardCard extends HTMLElement {
     const raw = [{ days: timer.days || [], on: timer.on, off: timer.off }, ...(timer.overrides || [])];
     return raw.map((g, i) => ({
       action,
+      entities: timer.entities,
+      options: timer.options,
       days: g.days || [],
       on: g.on,
       off: g.off || { mode: "none" },
@@ -1900,6 +1954,7 @@ class TimercardCard extends HTMLElement {
         <div class="event-label"><ha-icon icon="${icon}"></ha-icon>${tcEsc(label)}</div>
         <div class="event-time">${tcEsc(main)}</div>
         ${sub ? `<div class="event-sub">${tcEsc(sub)}</div>` : ""}
+        ${this._posText(timer, which) ? `<div class="event-pos"><ha-icon icon="mdi:arrow-up-down"></ha-icon>${tcEsc(this._posText(timer, which))}</div>` : ""}
       </div>`;
   }
 
@@ -1956,7 +2011,7 @@ class TimercardCard extends HTMLElement {
       days: [0, 1, 2, 3, 4, 5, 6],
       on: { type: "time", time: "19:00", offset: 0 },
       off: { mode: "time", type: "time", time: "23:00", offset: 0, duration: 60 },
-      options: { brightness: null, temperature: null, position: null },
+      options: this._draftOptions({}),
       overrides: [],
       action: "on_off",
     };
@@ -1967,6 +2022,21 @@ class TimercardCard extends HTMLElement {
       days: [...(group.days || [])],
       on: { type: "time", time: "19:00", offset: 0, ...(group.on || {}) },
       off: this._fillOff(group.off),
+    };
+  }
+
+  _draftOptions(timer) {
+    const o = timer.options || {};
+    const positions = { on: { ...(o.positions?.on || {}) }, off: { ...(o.positions?.off || {}) } };
+    if (o.position !== undefined && o.position !== null && !Object.keys(positions.on).length) {
+      // Timers from before 1.5: one position for all blinds when opening.
+      this._coversOf(timer.entities).forEach((e) => { positions.on[e] = o.position; });
+    }
+    return {
+      brightness: o.brightness ?? null,
+      temperature: o.temperature ?? null,
+      positions,
+      posEnabled: { on: Object.keys(positions.on).length > 0, off: Object.keys(positions.off).length > 0 },
     };
   }
 
@@ -1986,7 +2056,7 @@ class TimercardCard extends HTMLElement {
         enabled: d.enabled !== false,
         entities: d.entities || [],
         ...this._fillSpecs({ days: d.days || [0, 1, 2, 3, 4, 5, 6], on: d.on, off: d.off }),
-        options: { brightness: null, temperature: null, position: null, ...(d.options || {}) },
+        options: this._draftOptions(d),
         overrides: (d.overrides || []).map((o) => this._fillSpecs(o)),
         action: this._actionOf(d),
       };
@@ -2163,14 +2233,73 @@ class TimercardCard extends HTMLElement {
         ${on ? `<div class="field-row"><input class="num" type="number" step="0.5" data-field="options.temperature" value="${o.temperature}"><span class="unit">${tcEsc(unit)}</span></div>` : ""}
       </div>`;
     }
-    if (domains.has("cover")) {
-      const on = o.position !== null && o.position !== undefined;
-      html += `<div class="option">
-        <label class="check"><input type="checkbox" data-action="opt-toggle" data-opt="position" ${on ? "checked" : ""}>${tcEsc(this._t("set_position"))}</label>
-        ${on ? `<div class="field-row"><input type="range" min="0" max="100" data-field="options.position" value="${o.position}"><span class="range-val" data-val="position">${o.position}%</span></div>` : ""}
-      </div>`;
-    }
+    html += this._positionEditor("on");
     return html;
+  }
+
+  _coversOf(entities) {
+    return (entities || []).filter((e) => tcDomain(e) === "cover");
+  }
+
+  /** Can this cover move to a position (not only fully open/closed)? */
+  _canSetPosition(entityId) {
+    const s = this._stateObj(entityId);
+    if (!s) return true; // unknown right now: allow it
+    return ((s.attributes?.supported_features || 0) & 4) === 4;
+  }
+
+  /** "How far should it open/close", with a slider per blind. */
+  _positionEditor(which) {
+    const d = this._draft;
+    const all = this._coversOf(d.entities);
+    const covers = all.filter((e) => this._canSetPosition(e));
+    const fixed = all.filter((e) => !this._canSetPosition(e));
+    if (!covers.length) return "";
+    const enabled = !!d.options.posEnabled?.[which];
+    const values = d.options.positions[which];
+    const fallback = which === "on" ? 100 : 0;
+    return `<div class="option">
+      <label class="check"><input type="checkbox" data-action="pos-toggle" data-which="${which}" ${enabled ? "checked" : ""}>${tcEsc(this._t(which === "on" ? "set_open_pos" : "set_close_pos"))}</label>
+      ${enabled ? `
+        <div class="hint small">${tcEsc(this._t("pos_hint"))}</div>
+        ${covers.map((e) => {
+          const v = values[e] ?? fallback;
+          return `<div class="pos-row">
+            ${covers.length > 1 ? `<div class="pos-name"><ha-icon icon="${tcEsc(this._entityIcon(e))}"></ha-icon>${tcEsc(this._entityName(e))}</div>` : ""}
+            <div class="field-row">
+              <input type="range" min="0" max="100" data-pos-which="${which}" data-entity="${tcEsc(e)}" value="${v}" aria-label="${tcEsc(this._entityName(e))}">
+              <span class="range-val" data-pos-val="${which}|${tcEsc(e)}">${v}%</span>
+            </div>
+          </div>`;
+        }).join("")}
+        ${fixed.length ? `<div class="hint small">${tcEsc(this._t("pos_unsupported", { names: fixed.map((e) => this._entityName(e)).join(", ") }))}</div>` : ""}` : ""}
+    </div>`;
+  }
+
+  /** Positions (list of %) the timer moves its blinds to, or null. */
+  _coverPositions(timer, which) {
+    const covers = this._coversOf(timer.entities).filter((e) => this._canSetPosition(e));
+    if (!covers.length) return null;
+    const o = timer.options || {};
+    const fallback = which === "on" ? 100 : 0;
+    if (o.posEnabled) {
+      if (!o.posEnabled[which]) return null;
+      return covers.map((e) => o.positions?.[which]?.[e] ?? fallback);
+    }
+    const map = o.positions?.[which];
+    if (map && Object.keys(map).length) {
+      return covers.map((e) => map[e]).filter((v) => v !== undefined && v !== null);
+    }
+    if (which === "on" && o.position !== undefined && o.position !== null) return covers.map(() => o.position);
+    return null;
+  }
+
+  _posText(timer, which, forSummary = false) {
+    const values = this._coverPositions(timer, which);
+    if (!values || !values.length) return "";
+    const unique = [...new Set(values)];
+    if (unique.length === 1) return `${unique[0]}%`;
+    return forSummary ? this._t("pos_custom") : `${Math.min(...values)}–${Math.max(...values)}%`;
   }
 
   _devicePicker() {
@@ -2314,6 +2443,7 @@ class TimercardCard extends HTMLElement {
           <section class="step step-off">
             <div class="step-title"><span class="num off"><ha-icon icon="mdi:power-off"></ha-icon></span>${tcEsc(this._verb(verbs.off))}${badge}</div>
             ${this._offEditor("off", d, verbs)}
+            ${this._positionEditor("off")}
           </section>` : ""}
 
           <section class="step">
@@ -2409,7 +2539,7 @@ class TimercardCard extends HTMLElement {
       const group = this._resolve(note.dataset.group.replace(/\.?off$/, ""));
       if (group) note.innerHTML = this._nextDayNote(group);
     });
-    ["brightness", "position"].forEach((k) => {
+    ["brightness"].forEach((k) => {
       const el = root.querySelector(`[data-val="${k}"]`);
       if (el) el.textContent = `${this._draft.options[k]}%`;
     });
@@ -2481,6 +2611,17 @@ class TimercardCard extends HTMLElement {
   }
 
   _onInput(ev) {
+    const which = ev.target?.dataset?.posWhich;
+    if (which && this._view === "edit") {
+      const entity = ev.target.dataset.entity;
+      const value = Number(ev.target.value);
+      this._draft.options.positions[which][entity] = value;
+      const label = [...this.shadowRoot.querySelectorAll("[data-pos-val]")]
+        .find((el) => el.dataset.posVal === `${which}|${entity}`);
+      if (label) label.textContent = `${value}%`;
+      this._refreshLive();
+      return;
+    }
     const field = ev.target?.dataset?.field;
     if (!field || this._view !== "edit") return;
     const timePart = field.match(/^(.*)\.(hh|mm)$/);
@@ -2512,6 +2653,12 @@ class TimercardCard extends HTMLElement {
     }
     if (target?.dataset?.action === "per-day") {
       this._setPerDay(target.checked);
+      return;
+    }
+    if (target?.dataset?.action === "pos-toggle") {
+      const which = target.dataset.which;
+      this._draft.options.posEnabled[which] = target.checked;
+      this._renderEditor();
       return;
     }
     if (target?.dataset?.action === "opt-toggle") {
@@ -2709,7 +2856,17 @@ class TimercardCard extends HTMLElement {
     const domains = new Set(d.entities.map(tcDomain));
     if (domains.has("light") && d.options.brightness != null) options.brightness = Number(d.options.brightness);
     if (domains.has("climate") && d.options.temperature != null) options.temperature = Number(d.options.temperature);
-    if (domains.has("cover") && d.options.position != null) options.position = Number(d.options.position);
+    const covers = this._coversOf(d.entities).filter((e) => this._canSetPosition(e));
+    if (covers.length) {
+      const positions = {};
+      for (const which of ["on", "off"]) {
+        const used = which === "on" ? action !== "off" : action !== "on";
+        if (!used || !d.options.posEnabled[which]) continue;
+        const fallback = which === "on" ? 100 : 0;
+        positions[which] = Object.fromEntries(covers.map((e) => [e, Number(d.options.positions[which][e] ?? fallback)]));
+      }
+      if (Object.keys(positions).length) options.positions = positions;
+    }
     return {
       name: (d.name || "").trim() || this._autoName(d.entities),
       enabled: d.enabled,
@@ -2955,6 +3112,11 @@ const TC_STYLES = `
   .range-val { min-width: 44px; text-align: end; font-variant-numeric: tabular-nums; }
   .next-day-note { display: flex; align-items: center; gap: 6px; color: var(--tc-muted); font-size: .85rem; }
   .next-day-note:empty { display: none; }
+  .pos-row { display: flex; flex-direction: column; gap: 2px; }
+  .pos-name { display: flex; align-items: center; gap: 6px; font-size: .9rem; color: var(--tc-muted); }
+  .pos-name ha-icon { --mdc-icon-size: 16px; }
+  .event-pos { display: flex; align-items: center; gap: 4px; font-size: .78rem; color: var(--tc-muted); font-variant-numeric: tabular-nums; }
+  .event-pos ha-icon { --mdc-icon-size: 14px; }
   .option { display: flex; flex-direction: column; gap: 6px; border-top: 1px dashed var(--tc-line); padding-top: 10px; }
   .check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
   .check input { width: 18px; height: 18px; accent-color: var(--tc-accent); }

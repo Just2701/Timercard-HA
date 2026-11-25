@@ -60,6 +60,8 @@ OFF_SCHEMA = vol.Schema(
     }
 )
 
+_POSITION = vol.All(vol.Coerce(int), vol.Range(min=0, max=100))
+
 OPTIONS_SCHEMA = vol.Schema(
     {
         vol.Optional("brightness"): vol.Any(
@@ -68,6 +70,13 @@ OPTIONS_SCHEMA = vol.Schema(
         vol.Optional("temperature"): vol.Any(None, vol.Coerce(float)),
         vol.Optional("position"): vol.Any(
             None, vol.All(vol.Coerce(int), vol.Range(min=0, max=100))
+        ),
+        # Own position per cover, for the open (on) and close (off) moment.
+        vol.Optional("positions"): vol.Schema(
+            {
+                vol.Optional(event): {cv.entity_id: _POSITION}
+                for event in (EVENT_ON, EVENT_OFF)
+            }
         ),
     }
 )

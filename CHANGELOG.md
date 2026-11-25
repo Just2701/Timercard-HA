@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.0
+
+- Blinds and other covers: choose **how far they open** and **how far they
+  close**, with its own position for every blind in the timer. Tick
+  "Choose how far it opens" under *Open* and/or "Choose how far it closes"
+  under *Close* and set a slider per blind (0% = fully closed, 100% = fully
+  open).
+- The timer shows the positions under the times (e.g. "40–70%").
+- Blinds that can only open or close fully get no slider and a short note.
+- Timers that used the old single "Set position" keep working and are
+  converted when you edit them.
+
 ## 1.4.0
 
 - Fixed: after an update or restart the card could show "Custom element

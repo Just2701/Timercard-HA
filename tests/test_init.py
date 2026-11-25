@@ -327,3 +327,28 @@ async def test_restore_from_backup(
     await _setup(hass)
     assert list(hass.data[DOMAIN].timers) == ["abc"]
     assert hass.states.get("switch.timercard_pump") is not None
+
+
+async def test_cover_positions_over_websocket(hass: HomeAssistant, hass_ws_client) -> None:
+    """Per-cover positions are accepted and stored; bad values are refused."""
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    base = {
+        "type": "timercard/create",
+        "entities": ["cover.living", "cover.kitchen"],
+        "on": {"time": "08:00"},
+        "off": {"mode": "time", "time": "21:00"},
+    }
+    await client.send_json_auto_id(
+        {**base, "options": {"positions": {"on": {"cover.living": 150}}}}
+    )
+    assert not (await client.receive_json())["success"]
+    await client.send_json_auto_id(
+        {**base, "options": {"positions": {"on": {"cover.living": 70}, "off": {"cover.kitchen": 15}}}}
+    )
+    msg = await client.receive_json()
+    assert msg["success"], msg
+    assert msg["result"]["options"]["positions"] == {
+        "on": {"cover.living": 70},
+        "off": {"cover.kitchen": 15},
+    }
